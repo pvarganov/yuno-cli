@@ -1,23 +1,27 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+)
 
 // CustomerPaymentMethod is a payment method enrolled for a customer, as
 // returned by the enrollment, retrieval and unenrollment operations.
 type CustomerPaymentMethod struct {
-	ID           string      `json:"id,omitempty"`
-	AccountID    string      `json:"account_id,omitempty"`
-	CustomerID   string      `json:"customer_id,omitempty"`
-	Name         string      `json:"name,omitempty"`
-	Description  string      `json:"description,omitempty"`
-	Type         string      `json:"type,omitempty"`
-	Category     string      `json:"category,omitempty"`
-	Country      string      `json:"country,omitempty"`
-	Status       string      `json:"status,omitempty"`
-	VaultedToken string      `json:"vaulted_token,omitempty"`
-	Enrollment   *SessionRef `json:"enrollment,omitempty"`
-	CreatedAt    string      `json:"created_at,omitempty"`
-	UpdatedAt    string      `json:"updated_at,omitempty"`
+	ID           string        `json:"id,omitempty"`
+	AccountID    string        `json:"account_id,omitempty"`
+	CustomerID   string        `json:"customer_id,omitempty"`
+	Name         string        `json:"name,omitempty"`
+	Description  string        `json:"description,omitempty"`
+	Type         string        `json:"type,omitempty"`
+	Category     string        `json:"category,omitempty"`
+	Country      string        `json:"country,omitempty"`
+	Status       string        `json:"status,omitempty"`
+	VaultedToken string        `json:"vaulted_token,omitempty"`
+	Enrollment   *SessionRef   `json:"enrollment,omitempty"`
+	CardData     *EnrolledCard `json:"card_data,omitempty"`
+	CreatedAt    string        `json:"created_at,omitempty"`
+	UpdatedAt    string        `json:"updated_at,omitempty"`
 
 	// Raw is the verbatim response body, so `--json` keeps the card detail and
 	// provider fields the typed struct does not know.
@@ -58,6 +62,7 @@ type CustomerPaymentMethodView struct {
 	Type         string `json:"type"`
 	Category     string `json:"category"`
 	Name         string `json:"name"`
+	Card         string `json:"card"`
 	Status       string `json:"status"`
 	VaultedToken string `json:"vaulted_token"`
 	Session      string `json:"session"`
@@ -73,6 +78,7 @@ func (m *CustomerPaymentMethod) View() CustomerPaymentMethodView {
 
 	return CustomerPaymentMethodView{
 		ID:           m.ID,
+		Card:         m.CardLabel(),
 		Type:         m.Type,
 		Category:     m.Category,
 		Name:         m.Name,
@@ -91,4 +97,55 @@ func CustomerPaymentMethodViews(methods []CustomerPaymentMethod) []CustomerPayme
 	}
 
 	return views
+}
+
+// EnrolledCard is the `card_data` block Yuno attaches to an enrolled payment
+// method. Only the string fields are typed: the numeric expiration fields are
+// spelled differently across endpoints and survive in Raw anyway.
+type EnrolledCard struct {
+	Brand      string `json:"brand,omitempty"`
+	IIN        string `json:"iin,omitempty"`
+	LFD        string `json:"lfd,omitempty"`
+	Type       string `json:"type,omitempty"`
+	IssuerName string `json:"issuer_name,omitempty"`
+}
+
+// CardLabel renders the card of a payment method as `VISA ****1111`. The PAN is
+// never reconstructed: only the brand and the last four digits are used.
+func (m *CustomerPaymentMethod) CardLabel() string {
+	if m.CardData == nil {
+		return ""
+	}
+
+	parts := make([]string, 0, 2)
+	if m.CardData.Brand != "" {
+		parts = append(parts, m.CardData.Brand)
+	}
+
+	if m.CardData.LFD != "" {
+		parts = append(parts, "****"+m.CardData.LFD)
+	}
+
+	return strings.Join(parts, " ")
+}
+
+// CustomerPaymentMethodList is the wrapper `GET /customers/{customer_id}/
+// payment-methods` answers with.
+type CustomerPaymentMethodList struct {
+	PaymentMethods []CustomerPaymentMethod `json:"payment_methods"`
+}
+
+// AccountUpdaterResult is the answer of `POST /payment-methods/account-updater`.
+type AccountUpdaterResult struct {
+	Accepted int `json:"accepted"`
+}
+
+// AccountUpdaterView is the flat table row of an account updater registration.
+type AccountUpdaterView struct {
+	Accepted int `json:"accepted"`
+}
+
+// View flattens an account updater result into a table row.
+func (r *AccountUpdaterResult) View() AccountUpdaterView {
+	return AccountUpdaterView{Accepted: r.Accepted}
 }
