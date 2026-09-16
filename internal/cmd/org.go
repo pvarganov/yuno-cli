@@ -175,8 +175,6 @@ func newOrgRoleDeleteCommand() *cobra.Command {
 		RunE:        runOrgRoleDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 

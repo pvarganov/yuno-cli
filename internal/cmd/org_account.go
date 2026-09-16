@@ -179,8 +179,6 @@ func newOrgAccountDeleteCommand() *cobra.Command {
 		RunE:        runOrgAccountDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 
@@ -404,8 +402,6 @@ func newAccountGroupDeleteCommand() *cobra.Command {
 		Args:        cobra.ExactArgs(1),
 		RunE:        runAccountGroupDelete,
 	}
-
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
 
 	return command
 }

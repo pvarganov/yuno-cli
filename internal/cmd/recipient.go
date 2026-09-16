@@ -277,8 +277,6 @@ func newRecipientDeleteCommand() *cobra.Command {
 		RunE:        runRecipientDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 

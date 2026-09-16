@@ -229,8 +229,6 @@ func newCustomerDeleteCommand() *cobra.Command {
 		RunE:        runCustomerDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 

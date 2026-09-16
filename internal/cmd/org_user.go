@@ -263,8 +263,6 @@ func newOrgUserDeleteCommand() *cobra.Command {
 		RunE:        runOrgUserDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 
@@ -418,8 +416,6 @@ func newUserPermissionCommand(kind permissionKind) *cobra.Command {
 			return runPermissionDelete(cmd, &kind, args)
 		},
 	}
-
-	remove.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
 
 	permission.AddCommand(list, newPermissionSetCommand(&kind), newPermissionUpdateCommand(&kind), remove)
 

@@ -244,8 +244,6 @@ func newInstallmentPlanDeleteCommand() *cobra.Command {
 		RunE:        runInstallmentPlanDelete,
 	}
 
-	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
-
 	return command
 }
 
