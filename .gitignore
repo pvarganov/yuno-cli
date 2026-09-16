@@ -1,0 +1,21 @@
+# Binaries
+/yuno
+/dist/
+*.exe
+*.test
+*.out
+
+# Go
+vendor/
+go.work
+go.work.sum
+
+# Local env / secrets
+.env
+.env.*
+*.local
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

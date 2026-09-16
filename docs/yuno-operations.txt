@@ -1,0 +1,203 @@
+### Organizations (38)
+  DELETE /organizations/account-groups/{account_group_id}
+  DELETE /organizations/accounts/{account_id}
+  DELETE /organizations/roles/{role_id}
+  DELETE /organizations/users/{user_id}
+  DELETE /organizations/users/{user_id}/account-group-permissions/{account_group_id}
+  DELETE /organizations/users/{user_id}/account-permissions/{account_id}
+  GET /connections/catalog/{provider_id}
+  GET /connections/{connection_id}
+  GET /organizations/account-groups
+  GET /organizations/account-groups/{account_group_id}
+  GET /organizations/account-groups/{account_group_id}/accounts
+  GET /organizations/accounts
+  GET /organizations/accounts/{account_id}
+  GET /organizations/permissions-catalog
+  GET /organizations/roles
+  GET /organizations/users
+  GET /organizations/users/{user_id}
+  GET /organizations/users/{user_id}/account-group-permissions
+  GET /organizations/users/{user_id}/account-permissions
+  GET /routing
+  GET /routing/{routing_id}
+  PATCH /organizations/account-groups/{account_group_id}
+  PATCH /organizations/accounts/{account_id}
+  PATCH /organizations/roles/{role_id}
+  PATCH /organizations/users/{user_id}
+  PATCH /organizations/users/{user_id}/account-group-permissions
+  PATCH /organizations/users/{user_id}/account-permissions
+  PATCH /routing/{routing_id}
+  POST /connections
+  POST /organizations/account-groups
+  POST /organizations/account-groups/{account_group_id}/accounts
+  POST /organizations/authenticate
+  POST /organizations/roles
+  POST /organizations/users
+  POST /routing
+  POST /routing/recommendations
+  PUT /organizations/users/{user_id}/account-group-permissions
+  PUT /organizations/users/{user_id}/account-permissions
+### Recipients For Marketplace (18)
+  DELETE /recipients/{recipient_id}
+  GET /onboardings/{onboarding_id}/transfers
+  GET /recipients
+  GET /recipients/{recipient_id}
+  GET /recipients/{recipient_id}/onboardings/{onboarding_id}
+  GET /recipients/{recipient_id}/transfers
+  GET /transfers/{transfer_id}
+  PATCH /recipients/{recipient_id}
+  PATCH /recipients/{recipient_id}/onboardings/{onboarding_id}
+  POST /payments/{payment_id}/transactions/{transaction_id}/split-marketplace/transfer-reversal
+  POST /recipients
+  POST /recipients/onboardings/reverse-transfer/{transfer_id}
+  POST /recipients/{recipient_id}/onboardings
+  POST /recipients/{recipient_id}/onboardings/{onboarding_id}/block
+  POST /recipients/{recipient_id}/onboardings/{onboarding_id}/cancel
+  POST /recipients/{recipient_id}/onboardings/{onboarding_id}/continue
+  POST /recipients/{recipient_id}/onboardings/{onboarding_id}/transfer
+  POST /recipients/{recipient_id}/onboardings/{onboarding_id}/unblock
+### Payments (12)
+  GET /issuers
+  GET /payments
+  GET /payments/{payment_id}
+  PATCH /payments/{payment_id}/transactions/{transaction_id}/dispute
+  POST /payments
+  POST /payments/{id}/transactions/{transaction_id}/refund
+  POST /payments/{payment_id}/cancel-or-refund
+  POST /payments/{payment_id}/fulfillments
+  POST /payments/{payment_id}/transactions/{transaction_id}/cancel
+  POST /payments/{payment_id}/transactions/{transaction_id}/cancel-or-refund
+  POST /payments/{payment_id}/transactions/{transaction_id}/capture
+  POST /payments/{payment_id}/transactions/{transaction_id}/dispute
+### Subscriptions (10)
+  GET /subscriptions
+  GET /subscriptions/{subscription_id}
+  GET /subscriptions/{subscription_id}/payments
+  PATCH /subscriptions/{subscription_id}
+  POST /subscriptions
+  POST /subscriptions/{subscription_id}/cancel
+  POST /subscriptions/{subscription_id}/pause
+  POST /subscriptions/{subscription_id}/plan
+  POST /subscriptions/{subscription_id}/resume
+  POST /subscriptions/{subscription_id}/retry
+### Communications Campaigns (8)
+  GET /campaigns
+  GET /campaigns/{campaign_id}
+  GET /campaigns/{campaign_id}/rules/{rule_id}
+  PATCH /campaigns/{campaign_id}
+  PATCH /campaigns/{campaign_id}/rules/{rule_id}
+  PATCH /campaigns/{campaign_id}/rules/{rule_id}/status
+  POST /campaigns
+  POST /campaigns/{campaign_id}/rules
+### Payment Methods Direct Workflow (6)
+  GET /customers/{customer_id}/payment-methods
+  GET /customers/{customer_id}/payment-methods/{payment_method_id}
+  PATCH /payment-methods/{payment_method_id}
+  POST /customers/{customer_id}/payment-methods
+  POST /customers/{customer_id}/payment-methods/{payment_method_id}/unenroll
+  POST /payment-methods/account-updater
+### Pci Proxy (6)
+  DELETE /pci-proxy/destinations/{id}
+  GET /pci-proxy/destinations
+  POST /pci-proxy/destinations
+  POST /pci-proxy/destinations/{id}/disable
+  POST /pci-proxy/destinations/{id}/enable
+  POST /pci-proxy/forward
+### Checkout Builder (5)
+  GET /checkouts
+  GET /checkouts/{checkout_code}
+  PATCH /checkouts/{checkout_code}
+  POST /checkouts
+  PUT /checkouts/{checkout_code}
+### Customers (5)
+  DELETE /customers/{customer_id}
+  GET /customers
+  GET /customers/{customer_id}
+  PATCH /customers/{customer_id}
+  POST /customers
+### Installments (5)
+  DELETE /installments-plans/{installment_code}
+  GET /installments-plans
+  GET /installments-plans/{installment_code}
+  PATCH /installments-plans/{installment_code}
+  POST /installments-plans
+### Webhooks (5)
+  DELETE /webhooks/{webhook_id}
+  GET /webhooks
+  GET /webhooks/{webhook_id}
+  PATCH /webhooks/{webhook_id}
+  POST /webhooks
+### Accounts (Banking Connectivity) (4)
+  DELETE /banking/accounts/{account_id}
+  GET /banking/accounts/{account_id}
+  PATCH /banking/accounts/{account_id}
+  POST /banking/accounts
+### Entity Onboarding (Banking Connectivity) (4)
+  GET /banking/entities/{entity_id}/onboardings/{onboarding_id}
+  PATCH /banking/entities/{entity_id}/onboardings/{onboarding_id}
+  POST /banking/entities/{entity_id}/onboardings
+  POST /banking/entities/{entity_id}/onboardings/{onboarding_id}/cancel
+### Payment Methods Checkout (4)
+  GET /checkout/customers/sessions/{customer_session}/payment-methods
+  GET /payment-methods/{payment_method_id}
+  POST /customers/payment-methods/{payment_method_id}/unenroll
+  POST /customers/sessions/{customer_session}/payment-methods
+### Checkout Sessions (4)
+  GET /checkout/sessions/{checkout_session}
+  GET /checkout/sessions/{checkout_session}/payment-methods
+  PATCH /checkout/sessions/{checkout_session}
+  POST /checkout/sessions
+### Plans (4)
+  GET /subscriptions/plans
+  GET /subscriptions/plans/{plan_id}
+  POST /subscriptions/plans
+  POST /subscriptions/plans/{plan_id}/status
+### Reports (4)
+  GET /reports/list
+  GET /reports/{report_id}
+  GET /reports/{report_id}/download
+  POST /reports
+### Sellers (4)
+  DELETE /sellers/{merchant_seller_id}
+  GET /sellers/{merchant_seller_id}
+  POST /sellers
+  PUT /sellers/{merchant_seller_id}
+### Entity Transfers (Banking Connectivity) (3)
+  GET /banking/accounts/{account_id}/transfers/{transfer_id}
+  POST /banking/accounts/{account_id}/transfers/{transfer_id}/cancel
+  POST /banking/transfers
+### Entities (Banking Connectivity) (3)
+  GET /banking/entities/{entity_id}
+  PATCH /banking/entities/{entity_id}
+  POST /banking/entities
+### Payment Links (3)
+  GET /payment-links/{code}
+  POST /payment-links
+  POST /payment-links/{code}/cancel
+### Payouts (3)
+  GET /payouts
+  GET /payouts/{payout_id}
+  POST /payouts
+### Pre Debit Notifications (3)
+  GET /predebit-notify
+  GET /predebit-notify/{pre_debit_notification_id}
+  POST /predebit-notify
+### Transfers (3)
+  GET /split-marketplace/transfers/{transfer_id}
+  POST /split-marketplace/transfers
+  POST /split-marketplace/transfers/{transfer_id}/reverse
+### AI Caller (2)
+  POST /smart-support/external/payments
+  POST /smart-support/external/payments/recover
+### Conversion Rate (1)
+  POST /currency-conversion
+### Customer Sessions Enrollment (1)
+  POST /customers/sessions
+### Dry Run (1)
+  POST /dry-run/provider-events
+### Network Tokens (1)
+  POST /network-tokens/cryptograms
+### Reporting (1)
+  POST /reporting/transactions
+### Three D Secure Setups (1)
+  POST /three-d-secure/setups
