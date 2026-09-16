@@ -30,6 +30,8 @@ func NewRootCommand(version string) *cobra.Command {
 		newAuthCommand(),
 		newProfileCommand(),
 		newRawCommand(),
+		newRoutingCommand(),
+		newConnectionCommand(),
 	)
 
 	return root

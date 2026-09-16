@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -332,6 +333,58 @@ func printJSON(cmd *cobra.Command, data []byte) error {
 	}
 
 	return nil
+}
+
+// printResult renders a typed API result: the full payload as JSON when --json
+// is set, an aligned table of the flat view rows otherwise.
+func printResult(cmd *cobra.Command, payload, views any) error {
+	formatter := output.NewFormatter(true)
+	data := payload
+
+	if !flagBool(cmd, "json") {
+		formatter = output.NewFormatter(false, output.WithUnmask(flagBool(cmd, "unmask")))
+		data = views
+	}
+
+	if err := formatter.Format(cmd.OutOrStdout(), data); err != nil {
+		return fmt.Errorf("print response: %w", err)
+	}
+
+	return nil
+}
+
+// registerWriteFlags declares the body source flags of a mutating command.
+func registerWriteFlags(cmd *cobra.Command, fields []FieldFlag) {
+	flags := cmd.Flags()
+
+	registerBodyFlags(flags)
+	registerFieldFlags(flags, fields)
+	flags.String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
+}
+
+// requireBody builds the JSON body of a mutating command and refuses an empty
+// one, since Yuno rejects a bodyless POST or PATCH anyway.
+func requireBody(cmd *cobra.Command, fields []FieldFlag) (any, error) {
+	body, err := bodyFromFlags(cmd, fields)
+	if err != nil {
+		return nil, err
+	}
+
+	if body == nil {
+		return nil, fmt.Errorf("request body is required (use --file, --data or the field flags)")
+	}
+
+	return body, nil
+}
+
+// scopeHint appends the scope a 403 is usually missing, so the user knows what
+// to ask Yuno for instead of re-reading the raw API error.
+func scopeHint(err error, scopes string) error {
+	if err == nil || !errors.Is(err, api.ErrForbidden) {
+		return err
+	}
+
+	return fmt.Errorf("%w: ask Yuno to grant this api key the %s scope", err, scopes)
 }
 
 // flagString reads a string flag, treating a missing flag as empty.

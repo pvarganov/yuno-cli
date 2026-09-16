@@ -136,6 +136,10 @@ func NewClient(profile *config.Profile, opts ...Option) (*Client, error) {
 // Endpoint returns the base URL the client sends requests to.
 func (c *Client) Endpoint() string { return c.endpoint }
 
+// AccountID returns the account the profile is scoped to, empty when the
+// profile does not pin one.
+func (c *Client) AccountID() string { return c.profile.AccountID }
+
 // Request describes one API call.
 type Request struct {
 	Method string
