@@ -23,6 +23,8 @@ var sensitiveFields = map[string]struct{}{
 	"cvv":              {},
 	"token":            {},
 	"vaultedtoken":     {},
+	"networktoken":     {},
+	"cryptogram":       {},
 	"privatesecretkey": {},
 	"publicapikey":     {},
 }

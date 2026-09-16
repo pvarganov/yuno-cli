@@ -179,6 +179,8 @@ func TestIsSensitive(t *testing.T) {
 		{"cvv", true},
 		{"token", true},
 		{"vaulted_token", true},
+		{"network_token", true},
+		{"cryptogram", true},
 		{"private-secret-key", true},
 		{"public-api-key", true},
 		{"phone_number", false},

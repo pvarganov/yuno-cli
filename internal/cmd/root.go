@@ -33,6 +33,8 @@ func NewRootCommand(version string) *cobra.Command {
 		newPaymentCommand(),
 		newRoutingCommand(),
 		newConnectionCommand(),
+		newCustomerCommand(),
+		newNetworkTokenCommand(),
 	)
 
 	return root
