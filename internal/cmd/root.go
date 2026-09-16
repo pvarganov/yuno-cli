@@ -50,6 +50,10 @@ func NewRootCommand(version string) *cobra.Command {
 		newThreeDSecureCommand(),
 		newDryRunCommand(),
 		newOrgCommand(),
+		newWebhookCommand(),
+		newReportCommand(),
+		newReportingCommand(),
+		newSellerCommand(),
 	)
 
 	return root

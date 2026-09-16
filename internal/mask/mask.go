@@ -18,16 +18,21 @@ const maskChars = "****"
 // done on the normalised name, so `security_code`, `securityCode` and
 // `security-code` all match the same entry.
 var sensitiveFields = map[string]struct{}{
-	"number":           {},
-	"securitycode":     {},
-	"cvv":              {},
-	"token":            {},
-	"vaultedtoken":     {},
-	"networktoken":     {},
-	"cryptogram":       {},
-	"privatesecretkey": {},
-	"publicapikey":     {},
-	"accesstoken":      {},
+	"number":             {},
+	"securitycode":       {},
+	"cvv":                {},
+	"token":              {},
+	"vaultedtoken":       {},
+	"networktoken":       {},
+	"cryptogram":         {},
+	"privatesecretkey":   {},
+	"publicapikey":       {},
+	"accesstoken":        {},
+	"apikey":             {},
+	"secret":             {},
+	"hmacclientsecret":   {},
+	"clientsecret":       {},
+	"oauth2clientsecret": {},
 }
 
 // Secret keeps a short prefix of s and masks the rest. Values that are empty or

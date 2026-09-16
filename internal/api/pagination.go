@@ -190,24 +190,42 @@ type PagePager struct {
 	page  int
 	size  int
 	first int
+	// param is the name of the page parameter, `page` unless the endpoint
+	// spells it differently.
+	param string
 }
+
+// pageParam is the name most Yuno endpoints give the page parameter.
+const pageParam = "page"
 
 // NewPagePager returns a pager for `page` / `page_size` endpoints whose first
 // page is page zero.
 func NewPagePager(size int) *PagePager {
-	return &PagePager{size: normalizeSize(size)}
+	return &PagePager{size: normalizeSize(size), param: pageParam}
 }
 
 // NewPageNumberPager returns a pager for `page` / `page_size` endpoints whose
 // first page is page one, as the organization endpoints declare.
 func NewPageNumberPager(size int) *PagePager {
-	return &PagePager{page: 1, size: normalizeSize(size), first: 1}
+	return &PagePager{page: 1, size: normalizeSize(size), first: 1, param: pageParam}
+}
+
+// NewNamedPagePager returns a pager for an endpoint that spells the page
+// parameter differently — `page_number` on the report list — and counts its
+// pages from first.
+func NewNamedPagePager(param string, first, size int) *PagePager {
+	return &PagePager{page: first, size: normalizeSize(size), first: first, param: param}
 }
 
 // Query implements Pager.
 func (p *PagePager) Query() url.Values {
+	name := p.param
+	if name == "" {
+		name = pageParam
+	}
+
 	q := url.Values{}
-	q.Set("page", strconv.Itoa(p.page))
+	q.Set(name, strconv.Itoa(p.page))
 	q.Set("page_size", strconv.Itoa(p.size))
 
 	return q

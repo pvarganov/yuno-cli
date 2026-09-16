@@ -460,3 +460,23 @@ func show[T any](v *T) string {
 
 	return fmt.Sprintf("%v", *v)
 }
+
+func TestNewNamedPagePager_UsesTheGivenParamAndFirstPage(t *testing.T) {
+	pager := NewNamedPagePager("page_number", 1, 2)
+
+	if got := pager.Query().Encode(); got != "page_number=1&page_size=2" {
+		t.Errorf("unexpected first query: %s", got)
+	}
+
+	if !pager.Advance(PageMeta{}, 2) {
+		t.Error("a full page should ask for the next one")
+	}
+
+	if got := pager.Query().Encode(); got != "page_number=2&page_size=2" {
+		t.Errorf("unexpected second query: %s", got)
+	}
+
+	if pager.Advance(PageMeta{}, 1) {
+		t.Error("a short page ends the walk")
+	}
+}

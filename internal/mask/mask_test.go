@@ -210,3 +210,13 @@ func TestAccessTokenIsSensitive(t *testing.T) {
 		t.Errorf("unexpected masked token: %#v", got)
 	}
 }
+
+func TestIsSensitive_CoversTheWebhookCredentials(t *testing.T) {
+	t.Parallel()
+
+	for _, field := range []string{"api_key", "secret", "hmac_client_secret", "oauth2_client_secret"} {
+		if !mask.IsSensitive(field) {
+			t.Errorf("expected %q to be treated as a secret", field)
+		}
+	}
+}

@@ -239,3 +239,27 @@ func TestTableFormatterStructWithoutJSONTags(t *testing.T) {
 		t.Errorf("Format() = %q, want no output when no field carries a json tag", buf.String())
 	}
 }
+
+func TestTableFormatter_DoesNotMaskABooleanSecretFlag(t *testing.T) {
+	t.Parallel()
+
+	type catalogRow struct {
+		ParamID string `json:"param_id"`
+		Secret  bool   `json:"secret"`
+		APIKey  string `json:"api_key"`
+	}
+
+	var buf bytes.Buffer
+	if err := output.NewFormatter(false).Format(&buf, []catalogRow{{ParamID: "p-1", Secret: true, APIKey: "abcdefgh"}}); err != nil {
+		t.Fatalf("format: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, "true") {
+		t.Errorf("a boolean flag must stay readable, got:\n%s", out)
+	}
+
+	if strings.Contains(out, "abcdefgh") {
+		t.Errorf("the api key must be masked, got:\n%s", out)
+	}
+}

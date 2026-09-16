@@ -146,7 +146,10 @@ func (f *TableFormatter) cell(field reflect.Value, col column) string {
 	}
 
 	text := fmt.Sprintf("%v", field.Interface())
-	if !f.unmask && mask.IsSensitive(col.tag) {
+
+	// A bool never carries a credential: `secret: true` on a provider parameter
+	// says the parameter holds one, it is not the value itself.
+	if !f.unmask && field.Kind() != reflect.Bool && mask.IsSensitive(col.tag) {
 		return mask.Secret(text)
 	}
 
