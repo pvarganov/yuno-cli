@@ -34,6 +34,8 @@ func NewRootCommand(version string) *cobra.Command {
 		newRoutingCommand(),
 		newConnectionCommand(),
 		newCustomerCommand(),
+		newCheckoutSessionCommand(),
+		newCheckoutCommand(),
 		newNetworkTokenCommand(),
 	)
 
