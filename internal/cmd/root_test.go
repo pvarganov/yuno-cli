@@ -86,7 +86,7 @@ func TestRootCommand_PersistentFlags(t *testing.T) {
 	t.Parallel()
 
 	root := cmd.NewRootCommand("test")
-	for _, name := range []string{"json", "profile", "verbose", "yes"} {
+	for _, name := range []string{"json", "profile", "verbose", "yes", "unmask"} {
 		if root.PersistentFlags().Lookup(name) == nil {
 			t.Errorf("expected persistent flag %q to be registered", name)
 		}
