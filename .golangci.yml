@@ -57,6 +57,10 @@ linters:
         - G304
         - G704
         - G705
+        # file descriptor conversions for TTY detection are always in range
+        - G115
+        # API response fields legitimately carry credential names
+        - G117
 
   exclusions:
     rules:
