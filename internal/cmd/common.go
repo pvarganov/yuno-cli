@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -298,6 +299,7 @@ func newClientFromFlags(cmd *cobra.Command) (*api.Client, error) {
 	opts := []api.Option{
 		api.WithConfirmer(confirm.New(cmd.ErrOrStderr(), cmd.InOrStdin(), flagBool(cmd, "yes"))),
 		api.WithIdempotencyKey(flagString(cmd, "idempotency-key")),
+		api.WithTimeout(flagDuration(cmd, "timeout")),
 	}
 
 	if flagBool(cmd, "verbose") {
@@ -392,6 +394,18 @@ func flagString(cmd *cobra.Command, name string) string {
 	value, err := cmd.Flags().GetString(name)
 	if err != nil {
 		return ""
+	}
+
+	return value
+}
+
+// flagDuration reads a duration flag, treating a missing flag as zero. The PCI
+// proxy commands declare their own integer --timeout, which shadows the
+// persistent one; there the client keeps its default timeout.
+func flagDuration(cmd *cobra.Command, name string) time.Duration {
+	value, err := cmd.Flags().GetDuration(name)
+	if err != nil {
+		return 0
 	}
 
 	return value

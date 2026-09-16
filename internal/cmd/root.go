@@ -25,6 +25,7 @@ func NewRootCommand(version string) *cobra.Command {
 	flags.Bool("verbose", false, "dump HTTP requests and responses to stderr")
 	flags.Bool("yes", false, "skip confirmation prompts for write operations")
 	flags.Bool("unmask", false, "show card data and credentials unmasked in the output")
+	flags.Duration("timeout", 0, "per-request timeout (default 30s)")
 
 	root.AddCommand(
 		newAuthCommand(),

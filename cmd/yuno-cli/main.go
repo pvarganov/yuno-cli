@@ -13,6 +13,6 @@ func main() {
 	root := cmd.NewRootCommand(version)
 	if err := root.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		os.Exit(cmd.ExitCode(err))
 	}
 }
