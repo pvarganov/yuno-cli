@@ -42,6 +42,8 @@ type Client struct {
 	idempotencyKey string
 	verbose        bool
 	verboseOut     io.Writer
+	// confirmer gates every mutating request; nil means no prompting.
+	confirmer Confirmer
 	// sleep is swapped out in tests to keep retry cases fast.
 	sleep func(context.Context, time.Duration) error
 }
@@ -154,6 +156,10 @@ func (c *Client) DoRaw(ctx context.Context, req Request) ([]byte, error) {
 
 	target, err := c.resolveURL(req.Path, req.Query)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := c.confirm(req.Method, req.Path, target, payload); err != nil {
 		return nil, err
 	}
 
