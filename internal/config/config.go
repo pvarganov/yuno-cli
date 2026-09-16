@@ -232,11 +232,20 @@ func (p *Profile) Validate() error {
 		return fmt.Errorf("%w: %s", ErrMissingCredentials, strings.Join(missing, ", "))
 	}
 
-	if p.Environment != "" {
-		if _, ok := endpoints[p.Environment]; !ok {
-			return fmt.Errorf("%q: %w (want %s, %s or %s)",
-				p.Environment, ErrUnknownEnvironment, EnvironmentSandbox, EnvironmentProdUS, EnvironmentProdEU)
-		}
+	return p.ValidateEnvironment()
+}
+
+// ValidateEnvironment reports whether the profile environment names one of the
+// servers declared in the spec. An empty environment defaults to sandbox and is
+// therefore accepted.
+func (p *Profile) ValidateEnvironment() error {
+	if p.Environment == "" {
+		return nil
+	}
+
+	if _, ok := endpoints[p.Environment]; !ok {
+		return fmt.Errorf("%q: %w (want %s, %s or %s)",
+			p.Environment, ErrUnknownEnvironment, EnvironmentSandbox, EnvironmentProdUS, EnvironmentProdEU)
 	}
 
 	return nil

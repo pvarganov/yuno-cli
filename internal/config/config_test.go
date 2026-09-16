@@ -390,3 +390,40 @@ func TestProfileValidate(t *testing.T) {
 		})
 	}
 }
+
+func TestProfileValidateEnvironment(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		environment string
+		wantErr     bool
+	}{
+		{name: "empty defaults to sandbox", environment: ""},
+		{name: "sandbox", environment: config.EnvironmentSandbox},
+		{name: "prod-us", environment: config.EnvironmentProdUS},
+		{name: "prod-eu", environment: config.EnvironmentProdEU},
+		{name: "unknown", environment: "moon", wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			p := config.Profile{Environment: tt.environment}
+
+			err := p.ValidateEnvironment()
+			if tt.wantErr {
+				if !errors.Is(err, config.ErrUnknownEnvironment) {
+					t.Fatalf("expected config.ErrUnknownEnvironment, got %v", err)
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+		})
+	}
+}

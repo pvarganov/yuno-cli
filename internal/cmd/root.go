@@ -26,5 +26,10 @@ func NewRootCommand(version string) *cobra.Command {
 	flags.Bool("yes", false, "skip confirmation prompts for write operations")
 	flags.Bool("unmask", false, "show card data and credentials unmasked in the output")
 
+	root.AddCommand(
+		newAuthCommand(),
+		newProfileCommand(),
+	)
+
 	return root
 }
