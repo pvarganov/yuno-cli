@@ -16,10 +16,12 @@ type Connection struct {
 	UpdatedAt            string            `json:"updated_at,omitempty"`
 }
 
-// ConnectionParam is one provider credential or setting of a connection.
+// ConnectionParam is one provider credential or setting of a connection. The
+// spec types the value as a string, but the API also returns booleans and
+// numbers for toggle and numeric settings.
 type ConnectionParam struct {
 	ParamID string `json:"param_id"`
-	Value   string `json:"value,omitempty"`
+	Value   any    `json:"value,omitempty"`
 }
 
 // ConnectionView is the flat table row of a connection.

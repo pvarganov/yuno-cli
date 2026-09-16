@@ -58,6 +58,45 @@ func TestConnectionGet_HitsTheConnectionPath(t *testing.T) {
 	}
 }
 
+func TestConnectionGet_AcceptsNonStringParamValues(t *testing.T) {
+	isolateConfig(t)
+	seedCredentials(t)
+
+	response := `{"connection_id":"c-1","provider_id":"ADYEN","status":"ACTIVE",
+		"params":[{"param_id":"API_KEY","value":"secret"},{"param_id":"SANDBOX","value":true},
+		{"param_id":"RETRIES","value":3}]}`
+
+	startAPI(t, http.StatusOK, response)
+
+	out, err := runCLI(t, "", "connection", "get", "c-1", "--json")
+	if err != nil {
+		t.Fatalf("connection get failed: %v (%s)", err, out)
+	}
+
+	var got struct {
+		Params []struct {
+			ParamID string `json:"param_id"`
+			Value   any    `json:"value"`
+		} `json:"params"`
+	}
+
+	if err := json.Unmarshal([]byte(out), &got); err != nil {
+		t.Fatalf("decode output: %v (%s)", err, out)
+	}
+
+	want := map[string]any{"API_KEY": "secret", "SANDBOX": true, "RETRIES": 3.0}
+
+	if len(got.Params) != len(want) {
+		t.Fatalf("expected %d params, got %d (%s)", len(want), len(got.Params), out)
+	}
+
+	for _, param := range got.Params {
+		if param.Value != want[param.ParamID] {
+			t.Errorf("param %s: expected %v, got %v", param.ParamID, want[param.ParamID], param.Value)
+		}
+	}
+}
+
 func TestConnectionCreate_SendsTheBody(t *testing.T) {
 	isolateConfig(t)
 	seedCredentials(t)
