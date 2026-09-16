@@ -224,3 +224,46 @@ func TestIsSensitive_CoversTheWebhookCredentials(t *testing.T) {
 		}
 	}
 }
+
+func TestIsSensitiveParam(t *testing.T) {
+	cases := map[string]bool{
+		"SECRET_KEY":                 true,
+		"CLIENT_SECRET":              true,
+		"WEBHOOK_SIGNATURE_KEY":      true,
+		"SETTLEMENT_API_SECRET_KEY":  true,
+		"MERCHANT_IDENTITY_PASSWORD": true,
+		"PROCESSING_CHANNEL_ID":      false,
+		"MERCHANT_NAME_3DS":          false,
+		"INTEGRATION_TYPE":           false,
+	}
+
+	for name, want := range cases {
+		if got := mask.IsSensitiveParam(name); got != want {
+			t.Errorf("IsSensitiveParam(%q) = %v, want %v", name, got, want)
+		}
+	}
+}
+
+func TestJSON_MasksSecretConnectionParams(t *testing.T) {
+	input := map[string]any{
+		"params": []any{
+			map[string]any{"param_id": "SECRET_KEY", "value": "sk_live_supersecret"},
+			map[string]any{"param_id": "PROCESSING_CHANNEL_ID", "value": "pc_v7rabc"},
+			map[string]any{"param_id": "CHECKBOX_3DS", "value": true},
+		},
+	}
+
+	params, ok := mask.JSON(input).(map[string]any)["params"].([]any)
+	if !ok {
+		t.Fatalf("expected the params array to survive masking")
+	}
+
+	want := []any{"sk_l****", "pc_v7rabc", true}
+
+	for i, item := range params {
+		got := item.(map[string]any)["value"]
+		if got != want[i] {
+			t.Errorf("param %d: got %v, want %v", i, got, want[i])
+		}
+	}
+}

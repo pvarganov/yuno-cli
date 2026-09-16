@@ -84,7 +84,7 @@ func TestConnectionGet_AcceptsNonStringParamValues(t *testing.T) {
 		t.Fatalf("decode output: %v (%s)", err, out)
 	}
 
-	want := map[string]any{"API_KEY": "secret", "SANDBOX": true, "RETRIES": 3.0}
+	want := map[string]any{"API_KEY": "secr****", "SANDBOX": true, "RETRIES": 3.0}
 
 	if len(got.Params) != len(want) {
 		t.Fatalf("expected %d params, got %d (%s)", len(want), len(got.Params), out)
