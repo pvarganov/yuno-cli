@@ -431,3 +431,26 @@ func flagIntString(cmd *cobra.Command, name string) string {
 func flagBoolString(cmd *cobra.Command, name string) string {
 	return strconv.FormatBool(flagBool(cmd, name))
 }
+
+// registerPagingFlags declares the paging flags of a list command.
+func registerPagingFlags(cmd *cobra.Command) {
+	flags := cmd.Flags()
+
+	flags.Int("limit", 0, "stop after this many items (0 fetches every page)")
+	flags.Int("page-size", 0, "items requested per page")
+}
+
+// pagingFlags reads the paging flags of a list command.
+func pagingFlags(cmd *cobra.Command) (limit, pageSize int) {
+	return flagInt(cmd, "limit"), flagInt(cmd, "page-size")
+}
+
+// flagInt reads an int flag, treating a missing flag as zero.
+func flagInt(cmd *cobra.Command, name string) int {
+	value, err := cmd.Flags().GetInt(name)
+	if err != nil {
+		return 0
+	}
+
+	return value
+}
