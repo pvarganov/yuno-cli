@@ -37,6 +37,11 @@ type Client struct {
 	endpoint   string
 	httpClient *http.Client
 	maxRetries int
+	// idempotencyKey pins the X-Idempotency-Key of every mutating request when
+	// the caller wants to retry a known call instead of issuing a new one.
+	idempotencyKey string
+	verbose        bool
+	verboseOut     io.Writer
 	// sleep is swapped out in tests to keep retry cases fast.
 	sleep func(context.Context, time.Duration) error
 }
@@ -80,6 +85,25 @@ func WithTimeout(d time.Duration) Option {
 	}
 }
 
+// WithIdempotencyKey pins the key sent on mutating requests instead of
+// generating a fresh UUID per call.
+func WithIdempotencyKey(key string) Option {
+	return func(c *Client) {
+		if key != "" {
+			c.idempotencyKey = key
+		}
+	}
+}
+
+// WithVerbose dumps every request and response to w, with credentials and card
+// data masked. A nil writer disables the dump.
+func WithVerbose(w io.Writer) Option {
+	return func(c *Client) {
+		c.verbose = w != nil
+		c.verboseOut = verboseWriter(w)
+	}
+}
+
 // NewClient validates the profile and builds a client for its environment.
 func NewClient(profile *config.Profile, opts ...Option) (*Client, error) {
 	if err := profile.Validate(); err != nil {
@@ -96,6 +120,7 @@ func NewClient(profile *config.Profile, opts ...Option) (*Client, error) {
 		endpoint:   endpoint,
 		httpClient: &http.Client{Timeout: defaultTimeout},
 		maxRetries: defaultMaxRetries,
+		verboseOut: io.Discard,
 		sleep:      sleepContext,
 	}
 
@@ -132,6 +157,10 @@ func (c *Client) DoRaw(ctx context.Context, req Request) ([]byte, error) {
 		return nil, err
 	}
 
+	// One key per logical call: retries of the same call must not create a
+	// second payment.
+	idemKey := c.idempotencyKeyFor(req.Method)
+
 	var lastErr error
 
 	for attempt := 0; attempt <= c.maxRetries; attempt++ {
@@ -141,7 +170,7 @@ func (c *Client) DoRaw(ctx context.Context, req Request) ([]byte, error) {
 			}
 		}
 
-		data, err := c.attempt(ctx, req, target, payload)
+		data, err := c.attempt(ctx, req, target, payload, idemKey)
 		if err == nil {
 			return data, nil
 		}
@@ -157,7 +186,7 @@ func (c *Client) DoRaw(ctx context.Context, req Request) ([]byte, error) {
 		req.Method, req.Path, c.maxRetries+1, lastErr)
 }
 
-func (c *Client) attempt(ctx context.Context, req Request, target string, payload []byte) ([]byte, error) {
+func (c *Client) attempt(ctx context.Context, req Request, target string, payload []byte, idemKey string) ([]byte, error) {
 	var body io.Reader
 	if payload != nil {
 		body = bytes.NewReader(payload)
@@ -168,7 +197,8 @@ func (c *Client) attempt(ctx context.Context, req Request, target string, payloa
 		return nil, fmt.Errorf("build request %s %s: %w", req.Method, req.Path, err)
 	}
 
-	c.setHeaders(httpReq, payload != nil, req.Headers)
+	c.setHeaders(httpReq, payload != nil, idemKey, req.Headers)
+	c.dumpRequest(httpReq)
 
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
@@ -185,6 +215,8 @@ func (c *Client) attempt(ctx context.Context, req Request, target string, payloa
 		return nil, &transportError{err: fmt.Errorf("read %s %s response: %w", req.Method, req.Path, err)}
 	}
 
+	c.dumpResponse(resp, data)
+
 	if resp.StatusCode >= http.StatusBadRequest {
 		return nil, newError(resp, data)
 	}
@@ -192,7 +224,7 @@ func (c *Client) attempt(ctx context.Context, req Request, target string, payloa
 	return data, nil
 }
 
-func (c *Client) setHeaders(req *http.Request, hasBody bool, extra map[string]string) {
+func (c *Client) setHeaders(req *http.Request, hasBody bool, idemKey string, extra map[string]string) {
 	req.Header.Set(HeaderPublicAPIKey, c.profile.PublicAPIKey)
 	req.Header.Set(HeaderPrivateSecretKey, c.profile.PrivateSecretKey)
 	req.Header.Set("Accept", "application/json")
@@ -200,6 +232,10 @@ func (c *Client) setHeaders(req *http.Request, hasBody bool, extra map[string]st
 
 	if hasBody {
 		req.Header.Set("Content-Type", "application/json")
+	}
+
+	if idemKey != "" {
+		req.Header.Set(HeaderIdempotencyKey, idemKey)
 	}
 
 	if c.profile.AccountCode != "" {
