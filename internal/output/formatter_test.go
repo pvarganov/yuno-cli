@@ -2,6 +2,7 @@ package output_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -44,15 +45,46 @@ func TestJSONFormatterPrintsIndentedJSON(t *testing.T) {
 	}
 }
 
-func TestJSONFormatterDoesNotMask(t *testing.T) {
+func TestJSONFormatterMasksSensitiveFieldsByDefault(t *testing.T) {
 	var buf bytes.Buffer
 
-	if err := output.NewFormatter(true).Format(&buf, map[string]any{"number": "4111111111111111"}); err != nil {
+	data := map[string]any{"number": "4111111111111111", "id": "pay_1"}
+	if err := output.NewFormatter(true).Format(&buf, data); err != nil {
+		t.Fatalf("Format() error = %v", err)
+	}
+
+	if strings.Contains(buf.String(), "4111111111111111") {
+		t.Errorf("Format() = %q, want the card number masked", buf.String())
+	}
+
+	if !strings.Contains(buf.String(), "pay_1") {
+		t.Errorf("Format() = %q, want the non-sensitive field untouched", buf.String())
+	}
+}
+
+func TestJSONFormatterUnmask(t *testing.T) {
+	var buf bytes.Buffer
+
+	data := map[string]any{"number": "4111111111111111"}
+	if err := output.NewFormatter(true, output.WithUnmask(true)).Format(&buf, data); err != nil {
 		t.Fatalf("Format() error = %v", err)
 	}
 
 	if !strings.Contains(buf.String(), "4111111111111111") {
-		t.Errorf("Format() = %q, want the raw value so that jq pipelines keep working", buf.String())
+		t.Errorf("Format() = %q, want the raw value with --unmask", buf.String())
+	}
+}
+
+func TestJSONFormatterPreservesNumberPrecision(t *testing.T) {
+	var buf bytes.Buffer
+
+	data := map[string]any{"total": json.Number("9007199254740993")}
+	if err := output.NewFormatter(true).Format(&buf, data); err != nil {
+		t.Fatalf("Format() error = %v", err)
+	}
+
+	if !strings.Contains(buf.String(), "9007199254740993") {
+		t.Errorf("Format() = %q, want the exact original digits preserved", buf.String())
 	}
 }
 

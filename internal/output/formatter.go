@@ -3,6 +3,7 @@
 package output
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -35,9 +36,8 @@ type options struct {
 	unmask bool
 }
 
-// WithUnmask disables the masking of card-like fields in the table output. It
-// backs the `--unmask` flag and has no effect on the JSON output, which is
-// never masked so that jq pipelines keep seeing the API response verbatim.
+// WithUnmask disables the masking of card-like fields in both the table and
+// the JSON output. It backs the `--unmask` flag.
 func WithUnmask(unmask bool) Option {
 	return func(o *options) {
 		o.unmask = unmask
@@ -54,18 +54,42 @@ func NewFormatter(jsonMode bool, opts ...Option) Formatter {
 	}
 
 	if jsonMode {
-		return &JSONFormatter{}
+		return &JSONFormatter{unmask: o.unmask}
 	}
 
 	return &TableFormatter{unmask: o.unmask}
 }
 
-// JSONFormatter renders data as indented JSON.
-type JSONFormatter struct{}
+// JSONFormatter renders data as indented JSON, masking card-like fields
+// unless unmask is set.
+type JSONFormatter struct {
+	unmask bool
+}
 
-// Format writes data as indented JSON followed by a newline.
+// Format writes data as indented JSON followed by a newline, masking
+// sensitive fields (by their JSON key, see internal/mask) unless unmask is
+// set. Numbers are decoded as json.Number so that re-encoding never loses the
+// precision of the original response.
 func (f *JSONFormatter) Format(w io.Writer, data any) error {
-	b, err := json.MarshalIndent(data, "", "  ")
+	raw, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("marshal json: %w", err)
+	}
+
+	var decoded any
+
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+
+	if err := dec.Decode(&decoded); err != nil {
+		return fmt.Errorf("decode json: %w", err)
+	}
+
+	if !f.unmask {
+		decoded = mask.JSON(decoded)
+	}
+
+	b, err := json.MarshalIndent(decoded, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal json: %w", err)
 	}

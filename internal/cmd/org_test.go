@@ -352,7 +352,7 @@ func TestOrgAuthenticate_PostsTheUserIDAndMasksTheToken(t *testing.T) {
 	}
 }
 
-func TestOrgAuthenticate_ShowsTheTokenAsJSON(t *testing.T) {
+func TestOrgAuthenticate_MasksTheTokenInJSON(t *testing.T) {
 	isolateConfig(t)
 	seedCredentials(t)
 
@@ -363,8 +363,28 @@ func TestOrgAuthenticate_ShowsTheTokenAsJSON(t *testing.T) {
 		t.Fatalf("org authenticate failed: %v (%s)", err, out)
 	}
 
+	if strings.Contains(out, "tok-abcdef123456") {
+		t.Errorf("--json must mask the token by default, got:\n%s", out)
+	}
+
+	if !strings.Contains(out, "tok-****") {
+		t.Errorf("expected the masked token, got:\n%s", out)
+	}
+}
+
+func TestOrgAuthenticate_UnmaskShowsTheTokenInJSON(t *testing.T) {
+	isolateConfig(t)
+	seedCredentials(t)
+
+	startAPI(t, http.StatusOK, `{"access_token":"tok-abcdef123456","token_type":"Bearer","expires_in":3600}`)
+
+	out, err := runCLI(t, "", "org", "authenticate", "usr-1", "--json", "--yes", "--unmask")
+	if err != nil {
+		t.Fatalf("org authenticate failed: %v (%s)", err, out)
+	}
+
 	if !strings.Contains(out, "tok-abcdef123456") {
-		t.Errorf("--json must print the token verbatim, got:\n%s", out)
+		t.Errorf("--unmask must print the token verbatim, got:\n%s", out)
 	}
 }
 

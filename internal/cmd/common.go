@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -330,7 +331,8 @@ func printJSON(cmd *cobra.Command, data []byte) error {
 		return nil
 	}
 
-	if err := output.NewFormatter(true).Format(cmd.OutOrStdout(), decoded); err != nil {
+	unmask := output.WithUnmask(flagBool(cmd, "unmask"))
+	if err := output.NewFormatter(true, unmask).Format(cmd.OutOrStdout(), decoded); err != nil {
 		return fmt.Errorf("print response: %w", err)
 	}
 
@@ -338,13 +340,15 @@ func printJSON(cmd *cobra.Command, data []byte) error {
 }
 
 // printResult renders a typed API result: the full payload as JSON when --json
-// is set, an aligned table of the flat view rows otherwise.
+// is set, an aligned table of the flat view rows otherwise. Either way,
+// card-like fields are masked unless --unmask was given.
 func printResult(cmd *cobra.Command, payload, views any) error {
-	formatter := output.NewFormatter(true)
+	unmask := output.WithUnmask(flagBool(cmd, "unmask"))
+	formatter := output.NewFormatter(true, unmask)
 	data := payload
 
 	if !flagBool(cmd, "json") {
-		formatter = output.NewFormatter(false, output.WithUnmask(flagBool(cmd, "unmask")))
+		formatter = output.NewFormatter(false, unmask)
 		data = views
 	}
 
@@ -377,6 +381,16 @@ func requireBody(cmd *cobra.Command, fields []FieldFlag) (any, error) {
 	}
 
 	return body, nil
+}
+
+// methodNeedsBody reports whether Yuno expects a payload for this method.
+func methodNeedsBody(method string) bool {
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
+		return true
+	default:
+		return false
+	}
 }
 
 // scopeHint appends the scope a 403 is usually missing, so the user knows what

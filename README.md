@@ -176,6 +176,18 @@ yuno-cli customer create --data '{"email":"a@b.c","country":"CO"}'
 Because update bodies are built only from the flags you actually passed, `--email ""` clears the
 field while omitting `--email` leaves it untouched.
 
+### Pagination
+
+List commands fetch every page by default. `--limit N` stops after `N` items (`--limit 0`, the
+default, fetches everything); `--page-size N` sets how many items are requested per HTTP call. Each
+command exposes whichever paging parameters its own Yuno operation uses (`page`/`page_size`,
+`limit`/`offset`, or `size`), normalised to these same two flags:
+
+```
+yuno-cli payment list --merchant-order-id order-42 --limit 20
+yuno-cli org account list --page-size 50
+```
+
 ### Idempotency
 
 `X-Idempotency-Key` is generated for every `POST`/`PATCH`. Pin it with `--idempotency-key <uuid>` so
@@ -215,6 +227,11 @@ Without `--json`, results are rendered as a table of the fields that matter most
 Card numbers, security codes, tokens, cryptograms and API keys are masked everywhere the CLI writes
 output — tables, `--json`, and the `--verbose` HTTP dump alike. Pass `--unmask` only when you truly
 need the raw value, and never in a shared terminal or a CI log.
+
+`yuno-cli report download <report_id>` prints the pre-signed download link by default. Pass
+`--output <path>` (or `--output -` for stdout) to stream the file itself instead; the download
+request never sends your Yuno API keys to the storage host, and a file written to disk gets `0600`
+permissions since a report carries payment data.
 
 ## The `raw` escape hatch
 
