@@ -103,6 +103,7 @@ type metaFields struct {
 	Total         *int  `json:"total"`
 	TotalElements *int  `json:"total_elements"`
 	TotalCount    *int  `json:"total_count"`
+	TotalItems    *int  `json:"total_items"`
 	Page          *int  `json:"page"`
 	PageNumber    *int  `json:"page_number"`
 	PageSize      *int  `json:"page_size"`
@@ -138,6 +139,7 @@ func overlay(dst, src *metaFields) {
 	dst.Total = firstNonNil(src.Total, dst.Total)
 	dst.TotalElements = firstNonNil(src.TotalElements, dst.TotalElements)
 	dst.TotalCount = firstNonNil(src.TotalCount, dst.TotalCount)
+	dst.TotalItems = firstNonNil(src.TotalItems, dst.TotalItems)
 	dst.Page = firstNonNil(src.Page, dst.Page)
 	dst.PageNumber = firstNonNil(src.PageNumber, dst.PageNumber)
 	dst.PageSize = firstNonNil(src.PageSize, dst.PageSize)
@@ -148,7 +150,7 @@ func overlay(dst, src *metaFields) {
 func (f *metaFields) toPageMeta() PageMeta {
 	meta := PageMeta{
 		HasNext:  firstNonNil(f.HasNext, f.HasMore),
-		Total:    firstNonNil(f.Total, f.TotalElements, f.TotalCount),
+		Total:    firstNonNil(f.Total, f.TotalElements, f.TotalCount, f.TotalItems),
 		Page:     firstNonNil(f.Page, f.PageNumber),
 		PageSize: firstNonNil(f.PageSize, f.Size, f.Limit),
 	}
@@ -181,15 +183,25 @@ type Pager interface {
 	Advance(meta PageMeta, received int) bool
 }
 
-// PagePager walks a `page` / `page_size` endpoint, counting pages from zero.
+// PagePager walks a `page` / `page_size` endpoint. Most Yuno resources count
+// pages from zero; the organization ones count from one, which is what first
+// records.
 type PagePager struct {
-	page int
-	size int
+	page  int
+	size  int
+	first int
 }
 
-// NewPagePager returns a pager for `page` / `page_size` endpoints.
+// NewPagePager returns a pager for `page` / `page_size` endpoints whose first
+// page is page zero.
 func NewPagePager(size int) *PagePager {
 	return &PagePager{size: normalizeSize(size)}
+}
+
+// NewPageNumberPager returns a pager for `page` / `page_size` endpoints whose
+// first page is page one, as the organization endpoints declare.
+func NewPageNumberPager(size int) *PagePager {
+	return &PagePager{page: 1, size: normalizeSize(size), first: 1}
 }
 
 // Query implements Pager.
@@ -205,7 +217,7 @@ func (p *PagePager) Query() url.Values {
 func (p *PagePager) Advance(meta PageMeta, received int) bool {
 	p.page++
 
-	return morePages(meta, received, p.size, p.page*p.size)
+	return morePages(meta, received, p.size, (p.page-p.first)*p.size)
 }
 
 // OffsetPager walks a `limit` / `offset` endpoint.

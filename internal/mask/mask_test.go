@@ -197,3 +197,16 @@ func TestIsSensitive(t *testing.T) {
 		})
 	}
 }
+
+func TestAccessTokenIsSensitive(t *testing.T) {
+	if !mask.IsSensitive("access_token") {
+		t.Error("access_token must be treated as a secret")
+	}
+
+	got := mask.JSON(map[string]any{"access_token": "tok-abcdef123456"})
+
+	masked, ok := got.(map[string]any)
+	if !ok || masked["access_token"] != "tok-****" {
+		t.Errorf("unexpected masked token: %#v", got)
+	}
+}

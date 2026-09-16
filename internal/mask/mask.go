@@ -27,6 +27,7 @@ var sensitiveFields = map[string]struct{}{
 	"cryptogram":       {},
 	"privatesecretkey": {},
 	"publicapikey":     {},
+	"accesstoken":      {},
 }
 
 // Secret keeps a short prefix of s and masks the rest. Values that are empty or

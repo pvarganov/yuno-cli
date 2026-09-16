@@ -49,6 +49,7 @@ func NewRootCommand(version string) *cobra.Command {
 		newPreDebitCommand(),
 		newThreeDSecureCommand(),
 		newDryRunCommand(),
+		newOrgCommand(),
 	)
 
 	return root
