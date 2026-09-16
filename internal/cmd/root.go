@@ -57,6 +57,8 @@ func NewRootCommand(version string) *cobra.Command {
 		newCheckoutBuilderCommand(),
 		newCampaignCommand(),
 		newAICallerCommand(),
+		newPCIProxyCommand(),
+		newBankingCommand(),
 	)
 
 	return root
