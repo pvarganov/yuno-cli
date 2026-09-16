@@ -31,6 +31,12 @@ homebrew_casks:
     description: "CLI for the full Yuno REST API"
     binaries:
       - yuno-cli
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/yuno-cli"]
+          end
 
 changelog:
   sort: asc
