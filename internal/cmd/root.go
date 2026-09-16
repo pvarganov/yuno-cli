@@ -45,6 +45,7 @@ func NewRootCommand(version string) *cobra.Command {
 		newConversionRateCommand(),
 		newPayoutCommand(),
 		newTransferCommand(),
+		newRecipientCommand(),
 		newPreDebitCommand(),
 		newThreeDSecureCommand(),
 		newDryRunCommand(),
