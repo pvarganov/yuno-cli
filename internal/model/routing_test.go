@@ -130,3 +130,38 @@ func TestProviderCatalogViews_Empty(t *testing.T) {
 		t.Errorf("expected no rows for an empty catalog, got %+v", views)
 	}
 }
+
+func TestRouteChain_FollowsDeclinedBranches(t *testing.T) {
+	next := func(i int) *int { return &i }
+
+	route := model.Route{Steps: []model.RouteStep{
+		{Index: 1, ProviderID: "NETCETERA_3DS", Output: []model.RouteOutput{
+			{Status: "APPROVED", Next: next(2)},
+			{Status: "DECLINED", Next: next(3)},
+			{Status: "INTERNAL_ERROR", Next: next(4)},
+		}},
+		{Index: 2, ProviderID: "APPROVED_BRANCH"},
+		{Index: 3, ProviderID: "ECOMMPAY", Output: []model.RouteOutput{
+			{Status: "DECLINED", Next: next(7)},
+		}},
+		{Index: 4, ProviderID: "ERROR_BRANCH"},
+		{Index: 7, ProviderID: "CHECKOUT"},
+	}}
+
+	if got, want := route.Chain(), "NETCETERA_3DS > ECOMMPAY > CHECKOUT"; got != want {
+		t.Errorf("Chain() = %q, want %q", got, want)
+	}
+}
+
+func TestRouteChain_StopsOnALoop(t *testing.T) {
+	next := func(i int) *int { return &i }
+
+	route := model.Route{Steps: []model.RouteStep{
+		{Index: 1, ProviderID: "A", Output: []model.RouteOutput{{Status: "DECLINED", Next: next(2)}}},
+		{Index: 2, ProviderID: "B", Output: []model.RouteOutput{{Status: "DECLINED", Next: next(1)}}},
+	}}
+
+	if got, want := route.Chain(), "A > B"; got != want {
+		t.Errorf("Chain() = %q, want %q", got, want)
+	}
+}

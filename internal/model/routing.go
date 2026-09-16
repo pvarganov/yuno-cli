@@ -19,24 +19,36 @@ type Routing struct {
 	UpdatedAt     string         `json:"updated_at,omitempty"`
 }
 
-// Route is an ordered chain of providers a payment is attempted against.
+// Route is a tree of provider attempts. The steps are nodes, not an ordered
+// list: each one names its successor per outcome in its output.
 type Route struct {
-	Steps []RouteStep `json:"steps"`
+	Steps  []RouteStep   `json:"steps"`
+	Output []RouteOutput `json:"output,omitempty"`
 }
 
 // RouteStep is one provider attempt of a route.
 type RouteStep struct {
-	Index        int    `json:"index"`
-	ProviderID   string `json:"provider_id"`
-	ConnectionID string `json:"connection_id"`
+	Index        int           `json:"index"`
+	ProviderID   string        `json:"provider_id"`
+	ConnectionID string        `json:"connection_id"`
+	Output       []RouteOutput `json:"output,omitempty"`
+}
+
+// RouteOutput is one branch of a step: the step the route continues with when
+// the provider approves, declines or fails. A nil Next ends the route.
+type RouteOutput struct {
+	Status       string   `json:"status"`
+	Next         *int     `json:"next"`
+	DeclineTypes []string `json:"decline_types"`
 }
 
 // ConditionSet is a conditional override of the default route.
 type ConditionSet struct {
-	SortNumber int              `json:"sort_number"`
-	Name       string           `json:"name"`
-	Conditions []map[string]any `json:"conditions,omitempty"`
-	Route      Route            `json:"route"`
+	SortNumber  int              `json:"sort_number"`
+	Name        string           `json:"name"`
+	Description string           `json:"description,omitempty"`
+	Conditions  []map[string]any `json:"conditions,omitempty"`
+	Route       Route            `json:"route"`
 }
 
 // RoutingView is the flat table row of a routing rule.
@@ -69,21 +81,93 @@ func RoutingViews(routings []Routing) []RoutingView {
 	return views
 }
 
-// Chain renders the provider chain of a route as `STRIPE > ADYEN`, in step
-// order as the API returned it.
+// Chain renders the fallback chain of a route as `STRIPE > ADYEN`: the
+// providers a declined payment travels through, from the first step onwards.
+// Branches taken on approval or on a provider error are left out. Routes whose
+// steps carry no outcomes fall back to the order the API returned them in.
 func (r *Route) Chain() string {
-	names := make([]string, 0, len(r.Steps))
-
-	for _, step := range r.Steps {
-		name := step.ProviderID
-		if name == "" {
-			name = step.ConnectionID
+	if !r.branches() {
+		names := make([]string, 0, len(r.Steps))
+		for i := range r.Steps {
+			names = append(names, r.Steps[i].name())
 		}
 
-		names = append(names, name)
+		return strings.Join(names, " > ")
+	}
+
+	steps := make(map[int]RouteStep, len(r.Steps))
+	for _, step := range r.Steps {
+		steps[step.Index] = step
+	}
+
+	names := make([]string, 0, len(r.Steps))
+	seen := make(map[int]bool, len(r.Steps))
+
+	for index := r.first(); !seen[index]; {
+		step, ok := steps[index]
+		if !ok {
+			break
+		}
+
+		seen[index] = true
+		names = append(names, step.name())
+
+		next := step.next(declinedStatus)
+		if next == nil {
+			break
+		}
+
+		index = *next
 	}
 
 	return strings.Join(names, " > ")
+}
+
+// declinedStatus is the outcome that continues a cascade to the next provider.
+const declinedStatus = "DECLINED"
+
+// branches reports whether the route describes its own traversal.
+func (r *Route) branches() bool {
+	for i := range r.Steps {
+		if len(r.Steps[i].Output) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// first returns the index the route starts at.
+func (r *Route) first() int {
+	first := 0
+
+	for i, step := range r.Steps {
+		if i == 0 || step.Index < first {
+			first = step.Index
+		}
+	}
+
+	return first
+}
+
+// next returns the step the route continues with for this outcome.
+func (s *RouteStep) next(status string) *int {
+	for _, output := range s.Output {
+		if output.Status == status {
+			return output.Next
+		}
+	}
+
+	return nil
+}
+
+// name is the provider of a step, or its connection when the API omits one.
+func (s *RouteStep) name() string {
+	if s.ProviderID != "" {
+		return s.ProviderID
+	}
+
+	return s.ConnectionID
 }
 
 // RoutingRecommendation is the answer of `POST /routing/recommendations`.
