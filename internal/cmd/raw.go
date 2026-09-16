@@ -3,18 +3,13 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pvarganov/yuno-cli/internal/api"
-	"github.com/pvarganov/yuno-cli/internal/config"
-	"github.com/pvarganov/yuno-cli/internal/confirm"
-	"github.com/pvarganov/yuno-cli/internal/output"
 )
 
 // rawMethods are the HTTP methods `raw` accepts, so that a typo cannot reach
@@ -28,9 +23,6 @@ var rawMethods = map[string]struct{}{
 	http.MethodHead:    {},
 	http.MethodOptions: {},
 }
-
-// stdinMarker is the --data value that means "read the body from stdin".
-const stdinMarker = "@-"
 
 // newRawCommand builds `raw`, the escape hatch that calls any Yuno endpoint,
 // including the ones without a dedicated subcommand yet.
@@ -52,8 +44,7 @@ func newRawCommand() *cobra.Command {
 	flags := rawCmd.Flags()
 	flags.StringArray("query", nil, "query parameter as key=value (repeatable)")
 	flags.StringArray("header", nil, "extra request header as 'Name: value' (repeatable)")
-	flags.String("file", "", "read the JSON request body from this file")
-	flags.String("data", "", "JSON request body, or @- to read it from stdin")
+	registerBodyFlags(flags)
 	flags.String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
 
 	return rawCmd
@@ -97,7 +88,7 @@ func runRaw(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return printRaw(cmd, data)
+	return printJSON(cmd, data)
 }
 
 // rawMethod validates and normalises the method argument.
@@ -154,7 +145,7 @@ func parseHeaders(pairs []string) (map[string]string, error) {
 // it is valid JSON before anything is sent. Methods that carry no body are
 // allowed to have none; the ones that do must be given one.
 func rawBody(cmd *cobra.Command, method string) (any, error) {
-	payload, err := readRawBody(cmd)
+	payload, err := readBodySource(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -173,114 +164,4 @@ func rawBody(cmd *cobra.Command, method string) (any, error) {
 	}
 
 	return json.RawMessage(payload), nil
-}
-
-// readRawBody resolves the body source; --file wins over --data.
-func readRawBody(cmd *cobra.Command) ([]byte, error) {
-	if path := flagString(cmd, "file"); path != "" {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return nil, fmt.Errorf("read body file %s: %w", path, err)
-		}
-
-		return data, nil
-	}
-
-	data := strings.TrimSpace(flagString(cmd, "data"))
-
-	switch {
-	case data == "":
-		return nil, nil
-	case data == stdinMarker:
-		payload, err := io.ReadAll(cmd.InOrStdin())
-		if err != nil {
-			return nil, fmt.Errorf("read body from stdin: %w", err)
-		}
-
-		return payload, nil
-	case strings.HasPrefix(data, "@"):
-		path := strings.TrimPrefix(data, "@")
-
-		payload, err := os.ReadFile(path)
-		if err != nil {
-			return nil, fmt.Errorf("read body file %s: %w", path, err)
-		}
-
-		return payload, nil
-	default:
-		return []byte(data), nil
-	}
-}
-
-// methodNeedsBody reports whether Yuno expects a payload for this method.
-func methodNeedsBody(method string) bool {
-	switch method {
-	case http.MethodPost, http.MethodPut, http.MethodPatch:
-		return true
-	default:
-		return false
-	}
-}
-
-// printRaw writes the response through the formatter. An arbitrary endpoint has
-// no table shape, so the raw output is always JSON; an empty body prints nothing.
-func printRaw(cmd *cobra.Command, data []byte) error {
-	if strings.TrimSpace(string(data)) == "" {
-		return nil
-	}
-
-	var decoded any
-	if err := json.Unmarshal(data, &decoded); err != nil {
-		if _, err := fmt.Fprintln(cmd.OutOrStdout(), string(data)); err != nil {
-			return fmt.Errorf("print response: %w", err)
-		}
-
-		return nil
-	}
-
-	if err := output.NewFormatter(true).Format(cmd.OutOrStdout(), decoded); err != nil {
-		return fmt.Errorf("print response: %w", err)
-	}
-
-	return nil
-}
-
-// newClientFromFlags resolves the profile from the flags and the environment
-// and builds a client wired to the confirmation gate and the verbose dump.
-func newClientFromFlags(cmd *cobra.Command) (*api.Client, error) {
-	cfg, err := config.Load()
-	if err != nil {
-		return nil, err
-	}
-
-	profile, err := cfg.Profile(flagString(cmd, "profile"))
-	if err != nil {
-		return nil, err
-	}
-
-	opts := []api.Option{
-		api.WithConfirmer(confirm.New(cmd.ErrOrStderr(), cmd.InOrStdin(), flagBool(cmd, "yes"))),
-		api.WithIdempotencyKey(flagString(cmd, "idempotency-key")),
-	}
-
-	if flagBool(cmd, "verbose") {
-		opts = append(opts, api.WithVerbose(cmd.ErrOrStderr()))
-	}
-
-	client, err := api.NewClient(&profile, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
-// flagStringArray reads a repeatable string flag, treating a missing flag as empty.
-func flagStringArray(cmd *cobra.Command, name string) []string {
-	value, err := cmd.Flags().GetStringArray(name)
-	if err != nil {
-		return nil
-	}
-
-	return value
 }

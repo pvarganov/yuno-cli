@@ -254,23 +254,3 @@ func hide(secret string, unmask bool) string {
 
 	return mask.Secret(secret)
 }
-
-// flagString reads a string flag, treating a missing flag as empty.
-func flagString(cmd *cobra.Command, name string) string {
-	value, err := cmd.Flags().GetString(name)
-	if err != nil {
-		return ""
-	}
-
-	return value
-}
-
-// flagBool reads a bool flag, treating a missing flag as false.
-func flagBool(cmd *cobra.Command, name string) bool {
-	value, err := cmd.Flags().GetBool(name)
-	if err != nil {
-		return false
-	}
-
-	return value
-}
