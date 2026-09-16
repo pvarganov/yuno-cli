@@ -480,3 +480,41 @@ func TestNewNamedPagePager_UsesTheGivenParamAndFirstPage(t *testing.T) {
 		t.Error("a short page ends the walk")
 	}
 }
+
+func TestPaginateAllSizeNumberPager(t *testing.T) {
+	var queries []url.Values
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		queries = append(queries, r.URL.Query())
+
+		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		writeJSON(t, w, map[string]any{
+			"data":       itemsRange((page-1)*3, 3),
+			"pagination": map[string]any{"page": page, "size": 3, "total": 6},
+		})
+	}))
+	defer srv.Close()
+
+	c, _ := newTestClient(t, srv, testProfile())
+
+	got, err := PaginateAll[item](
+		t.Context(), c, Request{Method: http.MethodGet, Path: "/checkouts"}, NewSizeNumberPager(3), 0,
+	)
+	if err != nil {
+		t.Fatalf("PaginateAll: %v", err)
+	}
+
+	if len(got) != 6 {
+		t.Errorf("items = %v, want 6 items", ids(got))
+	}
+
+	if len(queries) != 2 {
+		t.Fatalf("requests = %d, want 2", len(queries))
+	}
+
+	// The first page is page one, and `total` must stop the walk after the
+	// second: a zero-based count would ask for a third page that does not exist.
+	if queries[0].Get("page") != "1" || queries[1].Get("page") != "2" {
+		t.Errorf("queries = %v, want page=1 then page=2", queries)
+	}
+}

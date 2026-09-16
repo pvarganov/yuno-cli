@@ -267,13 +267,21 @@ func (p *OffsetPager) Advance(meta PageMeta, received int) bool {
 
 // SizePager walks a `page` / `size` endpoint.
 type SizePager struct {
-	page int
-	size int
+	page  int
+	size  int
+	first int
 }
 
-// NewSizePager returns a pager for `page` / `size` endpoints.
+// NewSizePager returns a pager for `page` / `size` endpoints whose first page is
+// page zero.
 func NewSizePager(size int) *SizePager {
 	return &SizePager{size: normalizeSize(size)}
+}
+
+// NewSizeNumberPager returns a pager for `page` / `size` endpoints whose first
+// page is page one, as the checkout builder list declares.
+func NewSizeNumberPager(size int) *SizePager {
+	return &SizePager{page: 1, size: normalizeSize(size), first: 1}
 }
 
 // Query implements Pager.
@@ -289,7 +297,7 @@ func (p *SizePager) Query() url.Values {
 func (p *SizePager) Advance(meta PageMeta, received int) bool {
 	p.page++
 
-	return morePages(meta, received, p.size, p.page*p.size)
+	return morePages(meta, received, p.size, (p.page-p.first)*p.size)
 }
 
 func normalizeSize(size int) int {
