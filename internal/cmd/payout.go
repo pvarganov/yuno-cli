@@ -93,8 +93,9 @@ func newPayoutCommand() *cobra.Command {
 
 func newPayoutCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a payout",
+		Annotations: apiOperations("POST /payouts"),
+		Use:         "create",
+		Short:       "Create a payout",
 		Example: "  yuno-cli payout create --account-id acc-1 --merchant-reference ref-1 --country US " +
 			"--purpose SALARY --currency USD --amount 100 --beneficiary-id ben-1 --beneficiary-country US " +
 			"--withdrawal-type BANK_TRANSFER --provider-id NUVEI",
@@ -128,8 +129,9 @@ func runPayoutCreate(cmd *cobra.Command, _ []string) error {
 
 func newPayoutListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "list",
-		Short: "List the payouts created under a merchant reference",
+		Annotations: apiOperations("GET /payouts"),
+		Use:         "list",
+		Short:       "List the payouts created under a merchant reference",
 		Long: "List the payouts created under a merchant reference.\n\n" +
 			"Yuno has no unfiltered payout list: GET /payouts requires merchant_reference.",
 		Example: "  yuno-cli payout list --merchant-reference ref-1",
@@ -159,11 +161,12 @@ func runPayoutList(cmd *cobra.Command, _ []string) error {
 
 func newPayoutGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <payout_id>",
-		Short:   "Retrieve one payout",
-		Example: "  yuno-cli payout get 565c9733-000d-4066-a4bf-b084908dc74c --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPayoutGet,
+		Annotations: apiOperations("GET /payouts/{payout_id}"),
+		Use:         "get <payout_id>",
+		Short:       "Retrieve one payout",
+		Example:     "  yuno-cli payout get 565c9733-000d-4066-a4bf-b084908dc74c --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPayoutGet,
 	}
 }
 

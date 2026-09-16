@@ -74,11 +74,12 @@ func newOperationCommand(op *Operation) *cobra.Command {
 	params := pathParams(op.Path)
 
 	command := &cobra.Command{
-		Use:     operationUse(op.Name, params),
-		Short:   op.Short,
-		Long:    op.Long,
-		Example: op.Example,
-		Args:    cobra.ExactArgs(len(params)),
+		Annotations: apiOperations(op.Method + " " + op.Path),
+		Use:         operationUse(op.Name, params),
+		Short:       op.Short,
+		Long:        op.Long,
+		Example:     op.Example,
+		Args:        cobra.ExactArgs(len(params)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runOperation(cmd, op, params, args)
 		},

@@ -61,8 +61,9 @@ func newTransferCommand() *cobra.Command {
 
 func newTransferCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a standalone transfer to a recipient",
+		Annotations: apiOperations("POST /split-marketplace/transfers"),
+		Use:         "create",
+		Short:       "Create a standalone transfer to a recipient",
 		Example: "  yuno-cli transfer create --account-id acc-1 --recipient-id rec-1 " +
 			"--provider-id NUVEI --currency USD --amount 25",
 		Args: cobra.NoArgs,
@@ -95,11 +96,12 @@ func runTransferCreate(cmd *cobra.Command, _ []string) error {
 
 func newTransferGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <transfer_id>",
-		Short:   "Retrieve one standalone transfer",
-		Example: "  yuno-cli transfer get tr-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runTransferGet,
+		Annotations: apiOperations("GET /split-marketplace/transfers/{transfer_id}"),
+		Use:         "get <transfer_id>",
+		Short:       "Retrieve one standalone transfer",
+		Example:     "  yuno-cli transfer get tr-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runTransferGet,
 	}
 }
 
@@ -119,11 +121,12 @@ func runTransferGet(cmd *cobra.Command, args []string) error {
 
 func newTransferReverseCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "reverse <transfer_id>",
-		Short:   "Reverse a standalone transfer, fully or partially",
-		Example: "  yuno-cli transfer reverse tr-1 --account-id acc-1 --currency USD --amount 10 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runTransferReverse,
+		Annotations: apiOperations("POST /split-marketplace/transfers/{transfer_id}/reverse"),
+		Use:         "reverse <transfer_id>",
+		Short:       "Reverse a standalone transfer, fully or partially",
+		Example:     "  yuno-cli transfer reverse tr-1 --account-id acc-1 --currency USD --amount 10 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runTransferReverse,
 	}
 
 	registerWriteFlags(command, transferReverseFields)

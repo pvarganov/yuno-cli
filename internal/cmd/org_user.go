@@ -67,11 +67,12 @@ func newOrgUserCommand() *cobra.Command {
 
 func newOrgUserListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the users of the organization",
-		Example: "  yuno-cli org user list --account-id acc-1",
-		Args:    cobra.NoArgs,
-		RunE:    runOrgUserList,
+		Annotations: apiOperations("GET /organizations/users"),
+		Use:         "list",
+		Short:       "List the users of the organization",
+		Example:     "  yuno-cli org user list --account-id acc-1",
+		Args:        cobra.NoArgs,
+		RunE:        runOrgUserList,
 	}
 
 	for _, filter := range orgUserFilters {
@@ -121,8 +122,9 @@ func listOrgUsers(cmd *cobra.Command) ([]model.OrgUser, error) {
 // lookup endpoint for an email, but the list response carries one.
 func newOrgUserFindByEmailCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "find-by-email <email>",
-		Short: "Find the user with this email",
+		Annotations: apiOperations("GET /organizations/users"),
+		Use:         "find-by-email <email>",
+		Short:       "Find the user with this email",
 		Long: "Find the user with this email.\n\n" +
 			"Yuno has no lookup endpoint for an email, so this lists the users and filters " +
 			"them locally.",
@@ -159,11 +161,12 @@ func runOrgUserFindByEmail(cmd *cobra.Command, args []string) error {
 
 func newOrgUserGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <user_id>",
-		Short:   "Retrieve one user",
-		Example: "  yuno-cli org user get usr-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgUserGet,
+		Annotations: apiOperations("GET /organizations/users/{user_id}"),
+		Use:         "get <user_id>",
+		Short:       "Retrieve one user",
+		Example:     "  yuno-cli org user get usr-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgUserGet,
 	}
 }
 
@@ -183,8 +186,9 @@ func runOrgUserGet(cmd *cobra.Command, args []string) error {
 
 func newOrgUserCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Invite a user into the organization",
+		Annotations: apiOperations("POST /organizations/users"),
+		Use:         "create",
+		Short:       "Invite a user into the organization",
 		Example: "  yuno-cli org user create --email ops@example.com --first-name Ops " +
 			`--account-permissions '[{"account_id":"acc-1","role_id":"role-1"}]' --yes`,
 		Args: cobra.NoArgs,
@@ -217,11 +221,12 @@ func runOrgUserCreate(cmd *cobra.Command, _ []string) error {
 
 func newOrgUserUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <user_id>",
-		Short:   "Update a user",
-		Example: "  yuno-cli org user update usr-1 --first-name Ops --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgUserUpdate,
+		Annotations: apiOperations("PATCH /organizations/users/{user_id}"),
+		Use:         "update <user_id>",
+		Short:       "Update a user",
+		Example:     "  yuno-cli org user update usr-1 --first-name Ops --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgUserUpdate,
 	}
 
 	registerWriteFlags(command, orgUserFields)
@@ -250,11 +255,12 @@ func runOrgUserUpdate(cmd *cobra.Command, args []string) error {
 
 func newOrgUserDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <user_id>",
-		Short:   "Remove a user from the organization",
-		Example: "  yuno-cli org user delete usr-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgUserDelete,
+		Annotations: apiOperations("DELETE /organizations/users/{user_id}"),
+		Use:         "delete <user_id>",
+		Short:       "Remove a user from the organization",
+		Example:     "  yuno-cli org user delete usr-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgUserDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -290,6 +296,7 @@ type permissionKind struct {
 	aliases   []string
 	short     string
 	idArg     string
+	path      string
 	bodyField string
 	grantKey  string
 	get       func(ctx context.Context, c *api.Client, userID string) (payload, views any, err error)
@@ -305,6 +312,7 @@ func accountPermissionKind() permissionKind {
 		aliases:   []string{"account-permissions"},
 		short:     "Manage the roles a user holds on single accounts",
 		idArg:     "account_id",
+		path:      "/organizations/users/{user_id}/account-permissions",
 		bodyField: "account_permissions",
 		grantKey:  "account_id",
 		get: func(ctx context.Context, c *api.Client, userID string) (any, any, error) {
@@ -343,6 +351,7 @@ func accountGroupPermissionKind() permissionKind {
 		aliases:   []string{"account-group-permissions"},
 		short:     "Manage the roles a user holds on account groups",
 		idArg:     "account_group_id",
+		path:      "/organizations/users/{user_id}/account-group-permissions",
 		bodyField: "account_group_permissions",
 		grantKey:  "account_group_id",
 		get: func(ctx context.Context, c *api.Client, userID string) (any, any, error) {
@@ -389,20 +398,22 @@ func newUserPermissionCommand(kind permissionKind) *cobra.Command {
 	}
 
 	list := &cobra.Command{
-		Use:     "list <user_id>",
-		Short:   "List the permissions of a user",
-		Example: "  yuno-cli org user " + kind.use + " list usr-1",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("GET " + kind.path),
+		Use:         "list <user_id>",
+		Short:       "List the permissions of a user",
+		Example:     "  yuno-cli org user " + kind.use + " list usr-1",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPermissionList(cmd, &kind, args)
 		},
 	}
 
 	remove := &cobra.Command{
-		Use:     "delete <user_id> <" + kind.idArg + ">",
-		Short:   "Revoke the permission of a user on one resource",
-		Example: "  yuno-cli org user " + kind.use + " delete usr-1 res-1 --yes",
-		Args:    cobra.ExactArgs(2),
+		Annotations: apiOperations("DELETE " + kind.path + "/{" + kind.idArg + "}"),
+		Use:         "delete <user_id> <" + kind.idArg + ">",
+		Short:       "Revoke the permission of a user on one resource",
+		Example:     "  yuno-cli org user " + kind.use + " delete usr-1 res-1 --yes",
+		Args:        cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPermissionDelete(cmd, &kind, args)
 		},
@@ -418,8 +429,9 @@ func newUserPermissionCommand(kind permissionKind) *cobra.Command {
 // newPermissionSetCommand builds the PUT verb, which replaces the whole set.
 func newPermissionSetCommand(kind *permissionKind) *cobra.Command {
 	command := &cobra.Command{
-		Use:   "set <user_id>",
-		Short: "Replace every permission of a user",
+		Annotations: apiOperations("PUT " + kind.path),
+		Use:         "set <user_id>",
+		Short:       "Replace every permission of a user",
 		Example: "  yuno-cli org user " + kind.use + " set usr-1 " +
 			"--grant res-1=role-1 --yes",
 		Args: cobra.ExactArgs(1),
@@ -436,8 +448,9 @@ func newPermissionSetCommand(kind *permissionKind) *cobra.Command {
 // newPermissionUpdateCommand builds the PATCH verb, which merges into the set.
 func newPermissionUpdateCommand(kind *permissionKind) *cobra.Command {
 	command := &cobra.Command{
-		Use:   "update <user_id>",
-		Short: "Add to the permissions of a user",
+		Annotations: apiOperations("PATCH " + kind.path),
+		Use:         "update <user_id>",
+		Short:       "Add to the permissions of a user",
 		Example: "  yuno-cli org user " + kind.use + " update usr-1 " +
 			"--grant res-1=role-1 --yes",
 		Args: cobra.ExactArgs(1),

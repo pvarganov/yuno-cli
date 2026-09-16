@@ -61,11 +61,12 @@ func newPlanCommand() *cobra.Command {
 
 func newPlanCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a subscription plan",
-		Example: "  yuno-cli plan create --account-id acc-1 --name Gold --currency USD --amount 9.99",
-		Args:    cobra.NoArgs,
-		RunE:    runPlanCreate,
+		Annotations: apiOperations("POST /subscriptions/plans"),
+		Use:         "create",
+		Short:       "Create a subscription plan",
+		Example:     "  yuno-cli plan create --account-id acc-1 --name Gold --currency USD --amount 9.99",
+		Args:        cobra.NoArgs,
+		RunE:        runPlanCreate,
 	}
 
 	registerWriteFlags(command, planFields)
@@ -94,11 +95,12 @@ func runPlanCreate(cmd *cobra.Command, _ []string) error {
 
 func newPlanListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the subscription plans of an account",
-		Example: "  yuno-cli plan list --account-id acc-1 --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runPlanList,
+		Annotations: apiOperations("GET /subscriptions/plans"),
+		Use:         "list",
+		Short:       "List the subscription plans of an account",
+		Example:     "  yuno-cli plan list --account-id acc-1 --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runPlanList,
 	}
 
 	command.Flags().String("account-id", "", "account to list the plans of (defaults to the profile account_id)")
@@ -130,11 +132,12 @@ func runPlanList(cmd *cobra.Command, _ []string) error {
 
 func newPlanGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <plan_id>",
-		Short:   "Retrieve one subscription plan",
-		Example: "  yuno-cli plan get plan-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPlanGet,
+		Annotations: apiOperations("GET /subscriptions/plans/{plan_id}"),
+		Use:         "get <plan_id>",
+		Short:       "Retrieve one subscription plan",
+		Example:     "  yuno-cli plan get plan-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPlanGet,
 	}
 }
 
@@ -154,11 +157,12 @@ func runPlanGet(cmd *cobra.Command, args []string) error {
 
 func newPlanStatusCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "status <plan_id>",
-		Short:   "Change the status of a plan, which cancels it",
-		Example: "  yuno-cli plan status plan-1 --status CANCELED --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPlanStatus,
+		Annotations: apiOperations("POST /subscriptions/plans/{plan_id}/status"),
+		Use:         "status <plan_id>",
+		Short:       "Change the status of a plan, which cancels it",
+		Example:     "  yuno-cli plan status plan-1 --status CANCELED --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPlanStatus,
 	}
 
 	registerWriteFlags(command, planStatusFields)

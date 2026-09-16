@@ -61,11 +61,12 @@ func newPaymentCommand() *cobra.Command {
 
 func newPaymentCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a payment",
-		Example: "  yuno-cli payment create --file payment.json --idempotency-key <uuid>",
-		Args:    cobra.NoArgs,
-		RunE:    runPaymentCreate,
+		Annotations: apiOperations("POST /payments"),
+		Use:         "create",
+		Short:       "Create a payment",
+		Example:     "  yuno-cli payment create --file payment.json --idempotency-key <uuid>",
+		Args:        cobra.NoArgs,
+		RunE:        runPaymentCreate,
 	}
 
 	registerWriteFlags(command, paymentFields)
@@ -94,11 +95,12 @@ func runPaymentCreate(cmd *cobra.Command, _ []string) error {
 
 func newPaymentGetCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "get <payment_id>",
-		Short:   "Retrieve one payment",
-		Example: "  yuno-cli payment get e3f397ed --json | jq '.transactions[].provider_data'",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentGet,
+		Annotations: apiOperations("GET /payments/{payment_id}"),
+		Use:         "get <payment_id>",
+		Short:       "Retrieve one payment",
+		Example:     "  yuno-cli payment get e3f397ed --json | jq '.transactions[].provider_data'",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentGet,
 	}
 
 	command.Flags().Bool("raw-response", false, "include the raw provider responses")
@@ -126,10 +128,11 @@ func runPaymentGet(cmd *cobra.Command, args []string) error {
 // to one merchant order id - there is no unfiltered payment list.
 func newPaymentListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the payments of a merchant order",
-		Example: "  yuno-cli payment list --merchant-order-id order-42",
-		Args:    cobra.NoArgs,
+		Annotations: apiOperations("GET /payments"),
+		Use:         "list",
+		Short:       "List the payments of a merchant order",
+		Example:     "  yuno-cli payment list --merchant-order-id order-42",
+		Args:        cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runPaymentByOrderID(cmd, flagString(cmd, "merchant-order-id"))
 		},
@@ -143,10 +146,11 @@ func newPaymentListCommand() *cobra.Command {
 
 func newPaymentByOrderIDCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get-by-order-id <merchant_order_id>",
-		Short:   "Retrieve the payments of a merchant order",
-		Example: "  yuno-cli payment get-by-order-id order-42",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("GET /payments"),
+		Use:         "get-by-order-id <merchant_order_id>",
+		Short:       "Retrieve the payments of a merchant order",
+		Example:     "  yuno-cli payment get-by-order-id order-42",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPaymentByOrderID(cmd, args[0])
 		},
@@ -173,11 +177,12 @@ func runPaymentByOrderID(cmd *cobra.Command, merchantOrderID string) error {
 
 func newPaymentIssuersCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "issuers",
-		Short:   "List the banks available for a payment method",
-		Example: "  yuno-cli payment issuers --country-code CO --payment-method PSE",
-		Args:    cobra.NoArgs,
-		RunE:    runPaymentIssuers,
+		Annotations: apiOperations("GET /issuers"),
+		Use:         "issuers",
+		Short:       "List the banks available for a payment method",
+		Example:     "  yuno-cli payment issuers --country-code CO --payment-method PSE",
+		Args:        cobra.NoArgs,
+		RunE:        runPaymentIssuers,
 	}
 
 	flags := command.Flags()

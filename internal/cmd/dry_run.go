@@ -49,12 +49,13 @@ func newDryRunCommand() *cobra.Command {
 
 func newDryRunProviderEventCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "provider-event",
-		Short:   "Register a simulated provider event",
-		Aliases: []string{"provider-events"},
-		Example: "  yuno-cli dry-run provider-event --merchant-reference ref-1 --file events.json",
-		Args:    cobra.NoArgs,
-		RunE:    runDryRunProviderEvent,
+		Annotations: apiOperations("POST /dry-run/provider-events"),
+		Use:         "provider-event",
+		Short:       "Register a simulated provider event",
+		Aliases:     []string{"provider-events"},
+		Example:     "  yuno-cli dry-run provider-event --merchant-reference ref-1 --file events.json",
+		Args:        cobra.NoArgs,
+		RunE:        runDryRunProviderEvent,
 	}
 
 	registerWriteFlags(command, dryRunFields)

@@ -126,8 +126,9 @@ func newWebhookCommand() *cobra.Command {
 
 func newWebhookCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Register a webhook",
+		Annotations: apiOperations("POST /webhooks"),
+		Use:         "create",
+		Short:       "Register a webhook",
 		Example: "  yuno-cli webhook create --account-id acc-1 --name 'payments listener' " +
 			"--url https://api.acme.com/yuno --payment-trigger AUTHORIZE --payment-trigger REFUND",
 		Args: cobra.NoArgs,
@@ -160,11 +161,12 @@ func runWebhookCreate(cmd *cobra.Command, _ []string) error {
 
 func newWebhookListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the webhooks of an account",
-		Example: "  yuno-cli webhook list --account-id acc-1 --state ACTIVE",
-		Args:    cobra.NoArgs,
-		RunE:    runWebhookList,
+		Annotations: apiOperations("GET /webhooks"),
+		Use:         "list",
+		Short:       "List the webhooks of an account",
+		Example:     "  yuno-cli webhook list --account-id acc-1 --state ACTIVE",
+		Args:        cobra.NoArgs,
+		RunE:        runWebhookList,
 	}
 
 	flags := command.Flags()
@@ -191,11 +193,12 @@ func runWebhookList(cmd *cobra.Command, _ []string) error {
 
 func newWebhookGetCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "get <webhook_id>",
-		Short:   "Retrieve one webhook",
-		Example: "  yuno-cli webhook get 12345 --account-id acc-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runWebhookGet,
+		Annotations: apiOperations("GET /webhooks/{webhook_id}"),
+		Use:         "get <webhook_id>",
+		Short:       "Retrieve one webhook",
+		Example:     "  yuno-cli webhook get 12345 --account-id acc-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runWebhookGet,
 	}
 
 	command.Flags().String("account-id", "", "account the webhook belongs to")
@@ -220,8 +223,9 @@ func runWebhookGet(cmd *cobra.Command, args []string) error {
 
 func newWebhookUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "update <webhook_id>",
-		Short: "Update a webhook",
+		Annotations: apiOperations("PATCH /webhooks/{webhook_id}"),
+		Use:         "update <webhook_id>",
+		Short:       "Update a webhook",
 		Long: "Update a webhook.\n\n" +
 			"Only the flags you pass are sent, so an omitted field keeps its current value.\n" +
 			"Yuno requires the account id on every update, even when it does not change.",
@@ -256,11 +260,12 @@ func runWebhookUpdate(cmd *cobra.Command, args []string) error {
 
 func newWebhookDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <webhook_id>",
-		Short:   "Delete a webhook",
-		Example: "  yuno-cli webhook delete 12345 --account-id acc-1",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runWebhookDelete,
+		Annotations: apiOperations("DELETE /webhooks/{webhook_id}"),
+		Use:         "delete <webhook_id>",
+		Short:       "Delete a webhook",
+		Example:     "  yuno-cli webhook delete 12345 --account-id acc-1",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runWebhookDelete,
 	}
 
 	command.Flags().String("account-id", "", "account the webhook belongs to")

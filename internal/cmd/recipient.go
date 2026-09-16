@@ -132,8 +132,9 @@ func newRecipientCommand() *cobra.Command {
 
 func newRecipientCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a marketplace recipient",
+		Annotations: apiOperations("POST /recipients"),
+		Use:         "create",
+		Short:       "Create a marketplace recipient",
 		Example: "  yuno-cli recipient create --account-id acc-1 --merchant-recipient-id rec-1 " +
 			"--national-entity INDIVIDUAL --first-name Ada --last-name Lovelace --country BR",
 		Args: cobra.NoArgs,
@@ -166,11 +167,12 @@ func runRecipientCreate(cmd *cobra.Command, _ []string) error {
 
 func newRecipientListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the marketplace recipients",
-		Example: "  yuno-cli recipient list --country BR --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runRecipientList,
+		Annotations: apiOperations("GET /recipients"),
+		Use:         "list",
+		Short:       "List the marketplace recipients",
+		Example:     "  yuno-cli recipient list --country BR --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runRecipientList,
 	}
 
 	for _, filter := range recipientFilters {
@@ -208,11 +210,12 @@ func runRecipientList(cmd *cobra.Command, _ []string) error {
 
 func newRecipientGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <recipient_id>",
-		Short:   "Retrieve one marketplace recipient",
-		Example: "  yuno-cli recipient get rec-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientGet,
+		Annotations: apiOperations("GET /recipients/{recipient_id}"),
+		Use:         "get <recipient_id>",
+		Short:       "Retrieve one marketplace recipient",
+		Example:     "  yuno-cli recipient get rec-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientGet,
 	}
 }
 
@@ -232,11 +235,12 @@ func runRecipientGet(cmd *cobra.Command, args []string) error {
 
 func newRecipientUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <recipient_id>",
-		Short:   "Update a marketplace recipient",
-		Example: "  yuno-cli recipient update rec-1 --email ada@example.com --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientUpdate,
+		Annotations: apiOperations("PATCH /recipients/{recipient_id}"),
+		Use:         "update <recipient_id>",
+		Short:       "Update a marketplace recipient",
+		Example:     "  yuno-cli recipient update rec-1 --email ada@example.com --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientUpdate,
 	}
 
 	registerWriteFlags(command, recipientUpdateFields)
@@ -265,11 +269,12 @@ func runRecipientUpdate(cmd *cobra.Command, args []string) error {
 
 func newRecipientDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <recipient_id>",
-		Short:   "Delete a marketplace recipient",
-		Example: "  yuno-cli recipient delete rec-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientDelete,
+		Annotations: apiOperations("DELETE /recipients/{recipient_id}"),
+		Use:         "delete <recipient_id>",
+		Short:       "Delete a marketplace recipient",
+		Example:     "  yuno-cli recipient delete rec-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")

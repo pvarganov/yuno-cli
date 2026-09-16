@@ -66,11 +66,12 @@ func newPaymentMethodCommand() *cobra.Command {
 
 func newPaymentMethodListCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "list <customer_id>",
-		Short:   "List the payment methods enrolled for a customer",
-		Example: "  yuno-cli payment-method list cus-1",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentMethodList,
+		Annotations: apiOperations("GET /customers/{customer_id}/payment-methods"),
+		Use:         "list <customer_id>",
+		Short:       "List the payment methods enrolled for a customer",
+		Example:     "  yuno-cli payment-method list cus-1",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentMethodList,
 	}
 }
 
@@ -90,11 +91,12 @@ func runPaymentMethodList(cmd *cobra.Command, args []string) error {
 
 func newPaymentMethodGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <customer_id> <payment_method_id>",
-		Short:   "Retrieve one payment method enrolled for a customer",
-		Example: "  yuno-cli payment-method get cus-1 pm-1 --json",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentMethodGet,
+		Annotations: apiOperations("GET /customers/{customer_id}/payment-methods/{payment_method_id}"),
+		Use:         "get <customer_id> <payment_method_id>",
+		Short:       "Retrieve one payment method enrolled for a customer",
+		Example:     "  yuno-cli payment-method get cus-1 pm-1 --json",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentMethodGet,
 	}
 }
 
@@ -114,11 +116,12 @@ func runPaymentMethodGet(cmd *cobra.Command, args []string) error {
 
 func newPaymentMethodEnrollCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "enroll <customer_id>",
-		Short:   "Enroll a payment method for a customer through the direct workflow",
-		Example: "  yuno-cli payment-method enroll cus-1 --account-id acc-1 --type CARD --country US",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentMethodEnroll,
+		Annotations: apiOperations("POST /customers/{customer_id}/payment-methods"),
+		Use:         "enroll <customer_id>",
+		Short:       "Enroll a payment method for a customer through the direct workflow",
+		Example:     "  yuno-cli payment-method enroll cus-1 --account-id acc-1 --type CARD --country US",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentMethodEnroll,
 	}
 
 	registerWriteFlags(command, paymentMethodEnrollFields)
@@ -147,11 +150,12 @@ func runPaymentMethodEnroll(cmd *cobra.Command, args []string) error {
 
 func newPaymentMethodUnenrollCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "unenroll <customer_id> <payment_method_id>",
-		Short:   "Unenroll a payment method of a customer",
-		Example: "  yuno-cli payment-method unenroll cus-1 pm-1 --yes",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentMethodUnenroll,
+		Annotations: apiOperations("POST /customers/{customer_id}/payment-methods/{payment_method_id}/unenroll"),
+		Use:         "unenroll <customer_id> <payment_method_id>",
+		Short:       "Unenroll a payment method of a customer",
+		Example:     "  yuno-cli payment-method unenroll cus-1 pm-1 --yes",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentMethodUnenroll,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -175,8 +179,9 @@ func runPaymentMethodUnenroll(cmd *cobra.Command, args []string) error {
 
 func newPaymentMethodUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "update <payment_method_id>",
-		Short: "Reassign a payment method to another customer",
+		Annotations: apiOperations("PATCH /payment-methods/{payment_method_id}"),
+		Use:         "update <payment_method_id>",
+		Short:       "Reassign a payment method to another customer",
 		Long: "Reassign a payment method to another customer. Yuno accepts the reassignment only " +
 			"while the current owner has no data; otherwise the request fails with 409 CONFLICT.",
 		Example: "  yuno-cli payment-method update pm-1 --customer-id cus-2 --account-code acc-code",
@@ -211,11 +216,12 @@ func runPaymentMethodUpdate(cmd *cobra.Command, args []string) error {
 
 func newPaymentMethodAccountUpdaterCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "account-updater",
-		Short:   "Register stored cards for the card account updater",
-		Example: "  yuno-cli payment-method account-updater --payment-method-id pm-1 --payment-method-id pm-2",
-		Args:    cobra.NoArgs,
-		RunE:    runPaymentMethodAccountUpdater,
+		Annotations: apiOperations("POST /payment-methods/account-updater"),
+		Use:         "account-updater",
+		Short:       "Register stored cards for the card account updater",
+		Example:     "  yuno-cli payment-method account-updater --payment-method-id pm-1 --payment-method-id pm-2",
+		Args:        cobra.NoArgs,
+		RunE:        runPaymentMethodAccountUpdater,
 	}
 
 	registerWriteFlags(command, accountUpdaterFields)

@@ -74,11 +74,12 @@ func newOrgRoleCommand() *cobra.Command {
 
 func newOrgRoleListCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "list",
-		Short:   "List the roles of the organization",
-		Example: "  yuno-cli org role list",
-		Args:    cobra.NoArgs,
-		RunE:    runOrgRoleList,
+		Annotations: apiOperations("GET /organizations/roles"),
+		Use:         "list",
+		Short:       "List the roles of the organization",
+		Example:     "  yuno-cli org role list",
+		Args:        cobra.NoArgs,
+		RunE:        runOrgRoleList,
 	}
 }
 
@@ -98,11 +99,12 @@ func runOrgRoleList(cmd *cobra.Command, _ []string) error {
 
 func newOrgRoleCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a role",
-		Example: "  yuno-cli org role create --name Support --permission payments.read --yes",
-		Args:    cobra.NoArgs,
-		RunE:    runOrgRoleCreate,
+		Annotations: apiOperations("POST /organizations/roles"),
+		Use:         "create",
+		Short:       "Create a role",
+		Example:     "  yuno-cli org role create --name Support --permission payments.read --yes",
+		Args:        cobra.NoArgs,
+		RunE:        runOrgRoleCreate,
 	}
 
 	registerWriteFlags(command, orgRoleFields)
@@ -131,11 +133,12 @@ func runOrgRoleCreate(cmd *cobra.Command, _ []string) error {
 
 func newOrgRoleUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <role_id>",
-		Short:   "Update a role",
-		Example: "  yuno-cli org role update role-1 --name Support --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgRoleUpdate,
+		Annotations: apiOperations("PATCH /organizations/roles/{role_id}"),
+		Use:         "update <role_id>",
+		Short:       "Update a role",
+		Example:     "  yuno-cli org role update role-1 --name Support --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgRoleUpdate,
 	}
 
 	registerWriteFlags(command, orgRoleFields)
@@ -164,11 +167,12 @@ func runOrgRoleUpdate(cmd *cobra.Command, args []string) error {
 
 func newOrgRoleDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <role_id>",
-		Short:   "Delete a role",
-		Example: "  yuno-cli org role delete role-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgRoleDelete,
+		Annotations: apiOperations("DELETE /organizations/roles/{role_id}"),
+		Use:         "delete <role_id>",
+		Short:       "Delete a role",
+		Example:     "  yuno-cli org role delete role-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgRoleDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -192,12 +196,13 @@ func runOrgRoleDelete(cmd *cobra.Command, args []string) error {
 
 func newOrgPermissionsCatalogCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "permissions-catalog",
-		Short:   "List every permission a role may grant",
-		Aliases: []string{"permissions"},
-		Example: "  yuno-cli org permissions-catalog --json",
-		Args:    cobra.NoArgs,
-		RunE:    runOrgPermissionsCatalog,
+		Annotations: apiOperations("GET /organizations/permissions-catalog"),
+		Use:         "permissions-catalog",
+		Short:       "List every permission a role may grant",
+		Aliases:     []string{"permissions"},
+		Example:     "  yuno-cli org permissions-catalog --json",
+		Args:        cobra.NoArgs,
+		RunE:        runOrgPermissionsCatalog,
 	}
 }
 
@@ -217,8 +222,9 @@ func runOrgPermissionsCatalog(cmd *cobra.Command, _ []string) error {
 
 func newOrgAuthenticateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "authenticate <user_id>",
-		Short: "Issue a whitelabel access token for one user",
+		Annotations: apiOperations("POST /organizations/authenticate"),
+		Use:         "authenticate <user_id>",
+		Short:       "Issue a whitelabel access token for one user",
 		Long: "Issue a whitelabel access token for one user.\n\n" +
 			"The token is masked in the table output; use --json to read it in full.",
 		Example: "  yuno-cli org authenticate usr-1 --json",

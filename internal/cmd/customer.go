@@ -77,11 +77,12 @@ func newCustomerCommand() *cobra.Command {
 
 func newCustomerCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a customer",
-		Example: "  yuno-cli customer create --merchant-customer-id user-42 --email user@example.com",
-		Args:    cobra.NoArgs,
-		RunE:    runCustomerCreate,
+		Annotations: apiOperations("POST /customers"),
+		Use:         "create",
+		Short:       "Create a customer",
+		Example:     "  yuno-cli customer create --merchant-customer-id user-42 --email user@example.com",
+		Args:        cobra.NoArgs,
+		RunE:        runCustomerCreate,
 	}
 
 	registerWriteFlags(command, customerFields)
@@ -110,11 +111,12 @@ func runCustomerCreate(cmd *cobra.Command, _ []string) error {
 
 func newCustomerGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <customer_id>",
-		Short:   "Retrieve one customer",
-		Example: "  yuno-cli customer get 8f3c9a1e --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCustomerGet,
+		Annotations: apiOperations("GET /customers/{customer_id}"),
+		Use:         "get <customer_id>",
+		Short:       "Retrieve one customer",
+		Example:     "  yuno-cli customer get 8f3c9a1e --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCustomerGet,
 	}
 }
 
@@ -136,10 +138,11 @@ func runCustomerGet(cmd *cobra.Command, args []string) error {
 // scoped to one merchant customer id - there is no unfiltered customer list.
 func newCustomerListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "Look a customer up by your own customer id",
-		Example: "  yuno-cli customer list --merchant-customer-id user-42",
-		Args:    cobra.NoArgs,
+		Annotations: apiOperations("GET /customers"),
+		Use:         "list",
+		Short:       "Look a customer up by your own customer id",
+		Example:     "  yuno-cli customer list --merchant-customer-id user-42",
+		Args:        cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runCustomerByMerchantID(cmd, flagString(cmd, "merchant-customer-id"))
 		},
@@ -153,10 +156,11 @@ func newCustomerListCommand() *cobra.Command {
 
 func newCustomerByMerchantIDCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get-by-merchant-id <merchant_customer_id>",
-		Short:   "Retrieve a customer by your own customer id",
-		Example: "  yuno-cli customer get-by-merchant-id user-42",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("GET /customers"),
+		Use:         "get-by-merchant-id <merchant_customer_id>",
+		Short:       "Retrieve a customer by your own customer id",
+		Example:     "  yuno-cli customer get-by-merchant-id user-42",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCustomerByMerchantID(cmd, args[0])
 		},
@@ -183,11 +187,12 @@ func runCustomerByMerchantID(cmd *cobra.Command, merchantCustomerID string) erro
 
 func newCustomerUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <customer_id>",
-		Short:   "Update a customer",
-		Example: "  yuno-cli customer update 8f3c9a1e --email new@example.com",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCustomerUpdate,
+		Annotations: apiOperations("PATCH /customers/{customer_id}"),
+		Use:         "update <customer_id>",
+		Short:       "Update a customer",
+		Example:     "  yuno-cli customer update 8f3c9a1e --email new@example.com",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCustomerUpdate,
 	}
 
 	registerWriteFlags(command, customerFields)
@@ -216,11 +221,12 @@ func runCustomerUpdate(cmd *cobra.Command, args []string) error {
 
 func newCustomerDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <customer_id>",
-		Short:   "Delete a customer",
-		Example: "  yuno-cli customer delete 8f3c9a1e --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCustomerDelete,
+		Annotations: apiOperations("DELETE /customers/{customer_id}"),
+		Use:         "delete <customer_id>",
+		Short:       "Delete a customer",
+		Example:     "  yuno-cli customer delete 8f3c9a1e --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCustomerDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -256,11 +262,12 @@ func newCustomerSessionCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:     "create",
-		Short:   "Open an enrollment session for a customer",
-		Example: "  yuno-cli customer session create --account-id acc-1 --country CO --customer-id cus-1",
-		Args:    cobra.NoArgs,
-		RunE:    runCustomerSessionCreate,
+		Annotations: apiOperations("POST /customers/sessions"),
+		Use:         "create",
+		Short:       "Open an enrollment session for a customer",
+		Example:     "  yuno-cli customer session create --account-id acc-1 --country CO --customer-id cus-1",
+		Args:        cobra.NoArgs,
+		RunE:        runCustomerSessionCreate,
 	}
 
 	registerWriteFlags(create, customerSessionFields)
@@ -301,11 +308,12 @@ func newNetworkTokenCommand() *cobra.Command {
 	}
 
 	cryptogram := &cobra.Command{
-		Use:     "cryptogram",
-		Short:   "Generate a cryptogram for the network token of a vaulted card",
-		Example: "  yuno-cli network-token cryptogram --vaulted-token 9b2f4b1c --country US",
-		Args:    cobra.NoArgs,
-		RunE:    runNetworkTokenCryptogram,
+		Annotations: apiOperations("POST /network-tokens/cryptograms"),
+		Use:         "cryptogram",
+		Short:       "Generate a cryptogram for the network token of a vaulted card",
+		Example:     "  yuno-cli network-token cryptogram --vaulted-token 9b2f4b1c --country US",
+		Args:        cobra.NoArgs,
+		RunE:        runNetworkTokenCryptogram,
 	}
 
 	registerWriteFlags(cryptogram, networkTokenFields)

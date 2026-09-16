@@ -93,8 +93,9 @@ func newInstallmentPlanCommand() *cobra.Command {
 
 func newInstallmentPlanCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create an installments plan",
+		Annotations: apiOperations("POST /installments-plans"),
+		Use:         "create",
+		Short:       "Create an installments plan",
 		Example: "  yuno-cli installment-plan create --name plan-007 --account-id acc-1 " +
 			`--merchant-reference ref-1 --installments '[{"installment":3,"rate":1.2}]'`,
 		Args: cobra.NoArgs,
@@ -127,11 +128,12 @@ func runInstallmentPlanCreate(cmd *cobra.Command, _ []string) error {
 
 func newInstallmentPlanListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the installments plans of an account",
-		Example: "  yuno-cli installment-plan list --account-id acc-1 --currency USD",
-		Args:    cobra.NoArgs,
-		RunE:    runInstallmentPlanList,
+		Annotations: apiOperations("GET /installments-plans"),
+		Use:         "list",
+		Short:       "List the installments plans of an account",
+		Example:     "  yuno-cli installment-plan list --account-id acc-1 --currency USD",
+		Args:        cobra.NoArgs,
+		RunE:        runInstallmentPlanList,
 	}
 
 	command.Flags().String("account-id", "", "account to list the plans of (defaults to the profile account_id)")
@@ -175,11 +177,12 @@ func runInstallmentPlanList(cmd *cobra.Command, _ []string) error {
 
 func newInstallmentPlanGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <installment_code>",
-		Short:   "Retrieve one installments plan",
-		Example: "  yuno-cli installment-plan get 4d573425 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runInstallmentPlanGet,
+		Annotations: apiOperations("GET /installments-plans/{code}"),
+		Use:         "get <installment_code>",
+		Short:       "Retrieve one installments plan",
+		Example:     "  yuno-cli installment-plan get 4d573425 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runInstallmentPlanGet,
 	}
 }
 
@@ -199,11 +202,12 @@ func runInstallmentPlanGet(cmd *cobra.Command, args []string) error {
 
 func newInstallmentPlanUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <installment_code>",
-		Short:   "Update an installments plan",
-		Example: "  yuno-cli installment-plan update 4d573425 --name plan-008 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runInstallmentPlanUpdate,
+		Annotations: apiOperations("PATCH /installments-plans/{code}"),
+		Use:         "update <installment_code>",
+		Short:       "Update an installments plan",
+		Example:     "  yuno-cli installment-plan update 4d573425 --name plan-008 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runInstallmentPlanUpdate,
 	}
 
 	registerWriteFlags(command, installmentPlanFields)
@@ -232,11 +236,12 @@ func runInstallmentPlanUpdate(cmd *cobra.Command, args []string) error {
 
 func newInstallmentPlanDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <installment_code>",
-		Short:   "Delete an installments plan",
-		Example: "  yuno-cli installment-plan delete 4d573425 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runInstallmentPlanDelete,
+		Annotations: apiOperations("DELETE /installments-plans/{code}"),
+		Use:         "delete <installment_code>",
+		Short:       "Delete an installments plan",
+		Example:     "  yuno-cli installment-plan delete 4d573425 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runInstallmentPlanDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")

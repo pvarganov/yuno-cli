@@ -60,11 +60,12 @@ func newCheckoutSessionCommand() *cobra.Command {
 
 func newCheckoutSessionCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Open a checkout session",
-		Example: "  yuno-cli checkout-session create --account-id acc-1 --merchant-order-id order-42 --country CO",
-		Args:    cobra.NoArgs,
-		RunE:    runCheckoutSessionCreate,
+		Annotations: apiOperations("POST /checkout/sessions"),
+		Use:         "create",
+		Short:       "Open a checkout session",
+		Example:     "  yuno-cli checkout-session create --account-id acc-1 --merchant-order-id order-42 --country CO",
+		Args:        cobra.NoArgs,
+		RunE:        runCheckoutSessionCreate,
 	}
 
 	registerWriteFlags(command, checkoutSessionFields)
@@ -93,11 +94,12 @@ func runCheckoutSessionCreate(cmd *cobra.Command, _ []string) error {
 
 func newCheckoutSessionGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <checkout_session>",
-		Short:   "Retrieve one checkout session",
-		Example: "  yuno-cli checkout-session get d313047b --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutSessionGet,
+		Annotations: apiOperations("GET /checkout/sessions/{checkout_session}"),
+		Use:         "get <checkout_session>",
+		Short:       "Retrieve one checkout session",
+		Example:     "  yuno-cli checkout-session get d313047b --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutSessionGet,
 	}
 }
 
@@ -117,11 +119,12 @@ func runCheckoutSessionGet(cmd *cobra.Command, args []string) error {
 
 func newCheckoutSessionUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <checkout_session>",
-		Short:   "Update a checkout session that has not been used yet",
-		Example: "  yuno-cli checkout-session update d313047b --amount 520 --currency USD",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutSessionUpdate,
+		Annotations: apiOperations("PATCH /checkout/sessions/{checkout_session}"),
+		Use:         "update <checkout_session>",
+		Short:       "Update a checkout session that has not been used yet",
+		Example:     "  yuno-cli checkout-session update d313047b --amount 520 --currency USD",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutSessionUpdate,
 	}
 
 	registerWriteFlags(command, checkoutSessionFields)
@@ -150,11 +153,12 @@ func runCheckoutSessionUpdate(cmd *cobra.Command, args []string) error {
 
 func newCheckoutSessionPaymentMethodsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "payment-methods <checkout_session>",
-		Short:   "List the payment methods available for a checkout session",
-		Example: "  yuno-cli checkout-session payment-methods d313047b --category CARD",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutSessionPaymentMethods,
+		Annotations: apiOperations("GET /checkout/sessions/{checkout_session}/payment-methods"),
+		Use:         "payment-methods <checkout_session>",
+		Short:       "List the payment methods available for a checkout session",
+		Example:     "  yuno-cli checkout-session payment-methods d313047b --category CARD",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutSessionPaymentMethods,
 	}
 
 	command.Flags().String("category", "", "only list payment methods of this category, e.g. CARD")
@@ -211,11 +215,12 @@ func newCheckoutCommand() *cobra.Command {
 
 func newCheckoutPaymentMethodListCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "list <customer_session>",
-		Short:   "List the payment methods a customer session can enroll",
-		Example: "  yuno-cli checkout payment-method list 6641e30d",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutPaymentMethodList,
+		Annotations: apiOperations("GET /checkout/customers/sessions/{customer_session}/payment-methods"),
+		Use:         "list <customer_session>",
+		Short:       "List the payment methods a customer session can enroll",
+		Example:     "  yuno-cli checkout payment-method list 6641e30d",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutPaymentMethodList,
 	}
 }
 
@@ -235,11 +240,12 @@ func runCheckoutPaymentMethodList(cmd *cobra.Command, args []string) error {
 
 func newCheckoutPaymentMethodEnrollCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "enroll <customer_session>",
-		Short:   "Enroll a payment method in a customer session",
-		Example: "  yuno-cli checkout payment-method enroll 6641e30d --account-id acc-1 --payment-method-type CARD --country US",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutPaymentMethodEnroll,
+		Annotations: apiOperations("POST /customers/sessions/{customer_session}/payment-methods"),
+		Use:         "enroll <customer_session>",
+		Short:       "Enroll a payment method in a customer session",
+		Example:     "  yuno-cli checkout payment-method enroll 6641e30d --account-id acc-1 --payment-method-type CARD --country US",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutPaymentMethodEnroll,
 	}
 
 	registerWriteFlags(command, enrollFields)
@@ -268,11 +274,12 @@ func runCheckoutPaymentMethodEnroll(cmd *cobra.Command, args []string) error {
 
 func newCheckoutPaymentMethodGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <payment_method_id>",
-		Short:   "Retrieve one payment method by id",
-		Example: "  yuno-cli checkout payment-method get 0395199e --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutPaymentMethodGet,
+		Annotations: apiOperations("GET /payment-methods/{payment_method_id}"),
+		Use:         "get <payment_method_id>",
+		Short:       "Retrieve one payment method by id",
+		Example:     "  yuno-cli checkout payment-method get 0395199e --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutPaymentMethodGet,
 	}
 }
 
@@ -292,11 +299,12 @@ func runCheckoutPaymentMethodGet(cmd *cobra.Command, args []string) error {
 
 func newCheckoutPaymentMethodUnenrollCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "unenroll <payment_method_id>",
-		Short:   "Unenroll a payment method of a customer",
-		Example: "  yuno-cli checkout payment-method unenroll 77ee4a02 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCheckoutPaymentMethodUnenroll,
+		Annotations: apiOperations("POST /customers/payment-methods/{payment_method_id}/unenroll"),
+		Use:         "unenroll <payment_method_id>",
+		Short:       "Unenroll a payment method of a customer",
+		Example:     "  yuno-cli checkout payment-method unenroll 77ee4a02 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCheckoutPaymentMethodUnenroll,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")

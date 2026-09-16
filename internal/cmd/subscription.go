@@ -78,11 +78,12 @@ func newSubscriptionCommand() *cobra.Command {
 
 func newSubscriptionCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a subscription",
-		Example: "  yuno-cli subscription create --account-id acc-1 --name Gold --country CO --file subscription.json",
-		Args:    cobra.NoArgs,
-		RunE:    runSubscriptionCreate,
+		Annotations: apiOperations("POST /subscriptions"),
+		Use:         "create",
+		Short:       "Create a subscription",
+		Example:     "  yuno-cli subscription create --account-id acc-1 --name Gold --country CO --file subscription.json",
+		Args:        cobra.NoArgs,
+		RunE:        runSubscriptionCreate,
 	}
 
 	registerWriteFlags(command, subscriptionFields)
@@ -111,11 +112,12 @@ func runSubscriptionCreate(cmd *cobra.Command, _ []string) error {
 
 func newSubscriptionListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List subscriptions",
-		Example: "  yuno-cli subscription list --status ACTIVE --limit 50",
-		Args:    cobra.NoArgs,
-		RunE:    runSubscriptionList,
+		Annotations: apiOperations("GET /subscriptions"),
+		Use:         "list",
+		Short:       "List subscriptions",
+		Example:     "  yuno-cli subscription list --status ACTIVE --limit 50",
+		Args:        cobra.NoArgs,
+		RunE:        runSubscriptionList,
 	}
 
 	for _, filter := range subscriptionFilters {
@@ -153,11 +155,12 @@ func runSubscriptionList(cmd *cobra.Command, _ []string) error {
 
 func newSubscriptionGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <subscription_id>",
-		Short:   "Retrieve one subscription",
-		Example: "  yuno-cli subscription get sub-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runSubscriptionGet,
+		Annotations: apiOperations("GET /subscriptions/{subscription_id}"),
+		Use:         "get <subscription_id>",
+		Short:       "Retrieve one subscription",
+		Example:     "  yuno-cli subscription get sub-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runSubscriptionGet,
 	}
 }
 
@@ -177,11 +180,12 @@ func runSubscriptionGet(cmd *cobra.Command, args []string) error {
 
 func newSubscriptionUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <subscription_id>",
-		Short:   "Update a subscription",
-		Example: "  yuno-cli subscription update sub-1 --amount 12.5",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runSubscriptionUpdate,
+		Annotations: apiOperations("PATCH /subscriptions/{subscription_id}"),
+		Use:         "update <subscription_id>",
+		Short:       "Update a subscription",
+		Example:     "  yuno-cli subscription update sub-1 --amount 12.5",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runSubscriptionUpdate,
 	}
 
 	registerWriteFlags(command, subscriptionFields)
@@ -210,11 +214,12 @@ func runSubscriptionUpdate(cmd *cobra.Command, args []string) error {
 
 func newSubscriptionPaymentsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "payments <subscription_id>",
-		Short:   "List the payments of a subscription",
-		Example: "  yuno-cli subscription payments sub-1 --limit 10",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runSubscriptionPayments,
+		Annotations: apiOperations("GET /subscriptions/{subscription_id}/payments"),
+		Use:         "payments <subscription_id>",
+		Short:       "List the payments of a subscription",
+		Example:     "  yuno-cli subscription payments sub-1 --limit 10",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runSubscriptionPayments,
 	}
 
 	registerPagingFlags(command)

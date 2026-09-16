@@ -74,8 +74,9 @@ func newPreDebitCommand() *cobra.Command {
 
 func newPreDebitCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a pre-debit notification",
+		Annotations: apiOperations("POST /predebit-notify"),
+		Use:         "create",
+		Short:       "Create a pre-debit notification",
 		Example: "  yuno-cli pre-debit create --account-id acc-1 --merchant-reference ref-1 " +
 			"--currency INR --amount 1000 --billing-date 2026-10-01",
 		Args: cobra.NoArgs,
@@ -108,8 +109,9 @@ func runPreDebitCreate(cmd *cobra.Command, _ []string) error {
 
 func newPreDebitListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "list",
-		Short: "Look a pre-debit notification up by merchant reference",
+		Annotations: apiOperations("GET /predebit-notify"),
+		Use:         "list",
+		Short:       "Look a pre-debit notification up by merchant reference",
 		Long: "Look a pre-debit notification up by merchant reference.\n\n" +
 			"Yuno has no unfiltered list on this resource: GET /predebit-notify requires\n" +
 			"merchant_reference and answers with the single matching notification.",
@@ -140,11 +142,12 @@ func runPreDebitList(cmd *cobra.Command, _ []string) error {
 
 func newPreDebitGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <pre_debit_notification_id>",
-		Short:   "Retrieve one pre-debit notification",
-		Example: "  yuno-cli pre-debit get pdn-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPreDebitGet,
+		Annotations: apiOperations("GET /predebit-notify/{notification_id}"),
+		Use:         "get <pre_debit_notification_id>",
+		Short:       "Retrieve one pre-debit notification",
+		Example:     "  yuno-cli pre-debit get pdn-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPreDebitGet,
 	}
 }
 

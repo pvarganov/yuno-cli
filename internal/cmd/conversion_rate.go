@@ -50,8 +50,9 @@ func newConversionRateCommand() *cobra.Command {
 
 func newConversionRateGetCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "get",
-		Short: "Quote the conversion of an amount into the cardholder currency",
+		Annotations: apiOperations("POST /currency-conversion"),
+		Use:         "get",
+		Short:       "Quote the conversion of an amount into the cardholder currency",
 		Example: "  yuno-cli conversion-rate get --account-id acc-1 --currency COP --amount 10000 " +
 			"--cardholder-currency USD --provider CIBC --vaulted-token vt-1 --yes",
 		Args: cobra.NoArgs,

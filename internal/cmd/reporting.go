@@ -33,8 +33,9 @@ func newReportingCommand() *cobra.Command {
 
 func newReportingTransactionsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "transactions",
-		Short: "Ingest off-Yuno transactions",
+		Annotations: apiOperations("POST /reporting/transactions"),
+		Use:         "transactions",
+		Short:       "Ingest off-Yuno transactions",
 		Long: "Ingest off-Yuno transactions.\n\n" +
 			"Up to 500 events per call, deduplicated by their report_id, which makes a retry\n" +
 			"safe. Yuno answers 202 with a per-event result: one invalid event never rejects\n" +

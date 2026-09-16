@@ -45,11 +45,12 @@ func newOrgAccountCommand() *cobra.Command {
 
 func newOrgAccountListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the accounts of the organization",
-		Example: "  yuno-cli org account list --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runOrgAccountList,
+		Annotations: apiOperations("GET /organizations/accounts"),
+		Use:         "list",
+		Short:       "List the accounts of the organization",
+		Example:     "  yuno-cli org account list --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runOrgAccountList,
 	}
 
 	registerPagingFlags(command)
@@ -75,11 +76,12 @@ func runOrgAccountList(cmd *cobra.Command, _ []string) error {
 
 func newOrgAccountGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <account_id>",
-		Short:   "Retrieve one account",
-		Example: "  yuno-cli org account get acc-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgAccountGet,
+		Annotations: apiOperations("GET /organizations/accounts/{account_id}"),
+		Use:         "get <account_id>",
+		Short:       "Retrieve one account",
+		Example:     "  yuno-cli org account get acc-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgAccountGet,
 	}
 }
 
@@ -101,11 +103,12 @@ func runOrgAccountGet(cmd *cobra.Command, args []string) error {
 // inside an account group, which is why the group id is a positional argument.
 func newOrgAccountCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create <account_group_id>",
-		Short:   "Create an account inside an account group",
-		Example: "  yuno-cli org account create grp-1 --name Overgear-BR --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgAccountCreate,
+		Annotations: apiOperations("POST /organizations/account-groups/{group_id}/accounts"),
+		Use:         "create <account_group_id>",
+		Short:       "Create an account inside an account group",
+		Example:     "  yuno-cli org account create grp-1 --name Overgear-BR --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgAccountCreate,
 	}
 
 	registerWriteFlags(command, orgAccountFields)
@@ -134,11 +137,12 @@ func runOrgAccountCreate(cmd *cobra.Command, args []string) error {
 
 func newOrgAccountUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <account_id>",
-		Short:   "Update an account",
-		Example: "  yuno-cli org account update acc-1 --name Overgear-BR --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgAccountUpdate,
+		Annotations: apiOperations("PATCH /organizations/accounts/{account_id}"),
+		Use:         "update <account_id>",
+		Short:       "Update an account",
+		Example:     "  yuno-cli org account update acc-1 --name Overgear-BR --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgAccountUpdate,
 	}
 
 	registerWriteFlags(command, orgAccountFields)
@@ -167,11 +171,12 @@ func runOrgAccountUpdate(cmd *cobra.Command, args []string) error {
 
 func newOrgAccountDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <account_id>",
-		Short:   "Delete an account",
-		Example: "  yuno-cli org account delete acc-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgAccountDelete,
+		Annotations: apiOperations("DELETE /organizations/accounts/{account_id}"),
+		Use:         "delete <account_id>",
+		Short:       "Delete an account",
+		Example:     "  yuno-cli org account delete acc-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgAccountDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -221,11 +226,12 @@ func newOrgAccountGroupCommand() *cobra.Command {
 
 func newAccountGroupListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the account groups of the organization",
-		Example: "  yuno-cli org account-group list",
-		Args:    cobra.NoArgs,
-		RunE:    runAccountGroupList,
+		Annotations: apiOperations("GET /organizations/account-groups"),
+		Use:         "list",
+		Short:       "List the account groups of the organization",
+		Example:     "  yuno-cli org account-group list",
+		Args:        cobra.NoArgs,
+		RunE:        runAccountGroupList,
 	}
 
 	registerPagingFlags(command)
@@ -261,11 +267,12 @@ func listAccountGroups(cmd *cobra.Command) ([]model.OrgAccountGroup, error) {
 
 func newAccountGroupGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <account_group_id>",
-		Short:   "Retrieve one account group",
-		Example: "  yuno-cli org account-group get grp-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runAccountGroupGet,
+		Annotations: apiOperations("GET /organizations/account-groups/{group_id}"),
+		Use:         "get <account_group_id>",
+		Short:       "Retrieve one account group",
+		Example:     "  yuno-cli org account-group get grp-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runAccountGroupGet,
 	}
 }
 
@@ -287,8 +294,9 @@ func runAccountGroupGet(cmd *cobra.Command, args []string) error {
 // no lookup endpoint for a merchant id, but the list response carries one.
 func newAccountGroupFindByMerchantCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "find-by-merchant-id <merchant_id>",
-		Short: "Find the account groups of one merchant",
+		Annotations: apiOperations("GET /organizations/account-groups"),
+		Use:         "find-by-merchant-id <merchant_id>",
+		Short:       "Find the account groups of one merchant",
 		Long: "Find the account groups of one merchant.\n\n" +
 			"Yuno has no lookup endpoint for a merchant id, so this lists the account groups " +
 			"and filters them locally.",
@@ -321,11 +329,12 @@ func runAccountGroupFindByMerchant(cmd *cobra.Command, args []string) error {
 
 func newAccountGroupCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create an account group",
-		Example: "  yuno-cli org account-group create --name Overgear --merchant-id mer-1 --yes",
-		Args:    cobra.NoArgs,
-		RunE:    runAccountGroupCreate,
+		Annotations: apiOperations("POST /organizations/account-groups"),
+		Use:         "create",
+		Short:       "Create an account group",
+		Example:     "  yuno-cli org account-group create --name Overgear --merchant-id mer-1 --yes",
+		Args:        cobra.NoArgs,
+		RunE:        runAccountGroupCreate,
 	}
 
 	registerWriteFlags(command, orgAccountGroupFields)
@@ -354,11 +363,12 @@ func runAccountGroupCreate(cmd *cobra.Command, _ []string) error {
 
 func newAccountGroupUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <account_group_id>",
-		Short:   "Update an account group",
-		Example: "  yuno-cli org account-group update grp-1 --name Overgear --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runAccountGroupUpdate,
+		Annotations: apiOperations("PATCH /organizations/account-groups/{group_id}"),
+		Use:         "update <account_group_id>",
+		Short:       "Update an account group",
+		Example:     "  yuno-cli org account-group update grp-1 --name Overgear --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runAccountGroupUpdate,
 	}
 
 	registerWriteFlags(command, orgAccountGroupFields)
@@ -387,11 +397,12 @@ func runAccountGroupUpdate(cmd *cobra.Command, args []string) error {
 
 func newAccountGroupDeleteCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "delete <account_group_id>",
-		Short:   "Delete an account group",
-		Example: "  yuno-cli org account-group delete grp-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runAccountGroupDelete,
+		Annotations: apiOperations("DELETE /organizations/account-groups/{group_id}"),
+		Use:         "delete <account_group_id>",
+		Short:       "Delete an account group",
+		Example:     "  yuno-cli org account-group delete grp-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runAccountGroupDelete,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -415,11 +426,12 @@ func runAccountGroupDelete(cmd *cobra.Command, args []string) error {
 
 func newAccountGroupAccountsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "accounts <account_group_id>",
-		Short:   "List the accounts of one account group",
-		Example: "  yuno-cli org account-group accounts grp-1",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runAccountGroupAccounts,
+		Annotations: apiOperations("GET /organizations/account-groups/{group_id}/accounts"),
+		Use:         "accounts <account_group_id>",
+		Short:       "List the accounts of one account group",
+		Example:     "  yuno-cli org account-group accounts grp-1",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runAccountGroupAccounts,
 	}
 
 	registerPagingFlags(command)
@@ -447,11 +459,12 @@ func runAccountGroupAccounts(cmd *cobra.Command, args []string) error {
 // `org account create`: both send POST /organizations/account-groups/{id}/accounts.
 func newAccountGroupAddAccountCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "add-account <account_group_id>",
-		Short:   "Create an account inside this account group",
-		Example: "  yuno-cli org account-group add-account grp-1 --name Overgear-BR --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOrgAccountCreate,
+		Annotations: apiOperations("POST /organizations/account-groups/{group_id}/accounts"),
+		Use:         "add-account <account_group_id>",
+		Short:       "Create an account inside this account group",
+		Example:     "  yuno-cli org account-group add-account grp-1 --name Overgear-BR --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOrgAccountCreate,
 	}
 
 	registerWriteFlags(command, orgAccountFields)

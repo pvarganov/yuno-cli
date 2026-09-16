@@ -28,6 +28,7 @@ func NewRootCommand(version string) *cobra.Command {
 
 	root.AddCommand(
 		newAuthCommand(),
+		newCompletionCommand(),
 		newProfileCommand(),
 		newRawCommand(),
 		newPaymentCommand(),

@@ -42,11 +42,12 @@ func newConnectionCommand() *cobra.Command {
 
 func newConnectionCatalogCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "catalog <provider_id>",
-		Short:   "Show what a provider supports and which parameters it needs",
-		Example: "  yuno-cli connection catalog STRIPE",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runConnectionCatalog,
+		Annotations: apiOperations("GET /connections/catalog/{provider_id}"),
+		Use:         "catalog <provider_id>",
+		Short:       "Show what a provider supports and which parameters it needs",
+		Example:     "  yuno-cli connection catalog STRIPE",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runConnectionCatalog,
 	}
 }
 
@@ -66,11 +67,12 @@ func runConnectionCatalog(cmd *cobra.Command, args []string) error {
 
 func newConnectionGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <connection_id>",
-		Short:   "Retrieve one provider connection",
-		Example: "  yuno-cli connection get f1a3c4d5 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runConnectionGet,
+		Annotations: apiOperations("GET /connections/{connection_id}"),
+		Use:         "get <connection_id>",
+		Short:       "Retrieve one provider connection",
+		Example:     "  yuno-cli connection get f1a3c4d5 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runConnectionGet,
 	}
 }
 
@@ -90,11 +92,12 @@ func runConnectionGet(cmd *cobra.Command, args []string) error {
 
 func newConnectionCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a provider connection",
-		Example: "  yuno-cli connection create --file connection.json",
-		Args:    cobra.NoArgs,
-		RunE:    runConnectionCreate,
+		Annotations: apiOperations("POST /connections"),
+		Use:         "create",
+		Short:       "Create a provider connection",
+		Example:     "  yuno-cli connection create --file connection.json",
+		Args:        cobra.NoArgs,
+		RunE:        runConnectionCreate,
 	}
 
 	registerWriteFlags(command, connectionFields)

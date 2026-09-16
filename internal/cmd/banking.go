@@ -116,31 +116,34 @@ func newBankingEntityCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:     "create",
-		Short:   "Register a legal entity for banking connectivity",
-		Example: "  yuno-cli banking entity create --file entity.json",
-		Args:    cobra.NoArgs,
-		RunE:    runBankingEntityCreate,
+		Annotations: apiOperations("POST /banking/entities"),
+		Use:         "create",
+		Short:       "Register a legal entity for banking connectivity",
+		Example:     "  yuno-cli banking entity create --file entity.json",
+		Args:        cobra.NoArgs,
+		RunE:        runBankingEntityCreate,
 	}
 	registerWriteFlags(create, bankingEntityFields)
 
 	update := &cobra.Command{
-		Use:     "update <entity_id>",
-		Short:   "Update an entity",
-		Example: "  yuno-cli banking entity update be-1 --account-id acc-1 --phone '{\"number\":\"5550000\"}'",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runBankingEntityUpdate,
+		Annotations: apiOperations("PATCH /banking/entities/{entity_id}"),
+		Use:         "update <entity_id>",
+		Short:       "Update an entity",
+		Example:     "  yuno-cli banking entity update be-1 --account-id acc-1 --phone '{\"number\":\"5550000\"}'",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runBankingEntityUpdate,
 	}
 	registerWriteFlags(update, bankingEntityFields)
 
 	entity.AddCommand(
 		create,
 		&cobra.Command{
-			Use:     "get <entity_id>",
-			Short:   "Retrieve one entity",
-			Example: "  yuno-cli banking entity get be-1 --json",
-			Args:    cobra.ExactArgs(1),
-			RunE:    runBankingEntityGet,
+			Annotations: apiOperations("GET /banking/entities/{entity_id}"),
+			Use:         "get <entity_id>",
+			Short:       "Retrieve one entity",
+			Example:     "  yuno-cli banking entity get be-1 --json",
+			Args:        cobra.ExactArgs(1),
+			RunE:        runBankingEntityGet,
 		},
 		update,
 		newBankingOnboardingCommand(),
@@ -214,17 +217,19 @@ func newBankingOnboardingCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:     "create <entity_id>",
-		Short:   "Start the onboarding of an entity",
-		Example: "  yuno-cli banking entity onboarding create be-1 --account-id acc-1 --onboarding-type BANK_ACCOUNT",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runBankingOnboardingCreate,
+		Annotations: apiOperations("POST /banking/entities/{entity_id}/onboardings"),
+		Use:         "create <entity_id>",
+		Short:       "Start the onboarding of an entity",
+		Example:     "  yuno-cli banking entity onboarding create be-1 --account-id acc-1 --onboarding-type BANK_ACCOUNT",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runBankingOnboardingCreate,
 	}
 	registerWriteFlags(create, bankingOnboardingFields)
 
 	update := &cobra.Command{
-		Use:   "update <entity_id> <onboarding_id>",
-		Short: "Update an onboarding",
+		Annotations: apiOperations("PATCH /banking/entities/{entity_id}/onboardings/{onboarding_id}"),
+		Use:         "update <entity_id> <onboarding_id>",
+		Short:       "Update an onboarding",
 		Long: "Update an onboarding.\n\n" +
 			"This is how a pending requirement is satisfied: send the document or the\n" +
 			"declaration the onboarding status asked for.",
@@ -237,19 +242,21 @@ func newBankingOnboardingCommand() *cobra.Command {
 	onboarding.AddCommand(
 		create,
 		&cobra.Command{
-			Use:     "get <entity_id> <onboarding_id>",
-			Short:   "Retrieve the status of an onboarding",
-			Example: "  yuno-cli banking entity onboarding get be-1 bo-1 --json",
-			Args:    cobra.ExactArgs(2),
-			RunE:    runBankingOnboardingGet,
+			Annotations: apiOperations("GET /banking/entities/{entity_id}/onboardings/{onboarding_id}"),
+			Use:         "get <entity_id> <onboarding_id>",
+			Short:       "Retrieve the status of an onboarding",
+			Example:     "  yuno-cli banking entity onboarding get be-1 bo-1 --json",
+			Args:        cobra.ExactArgs(2),
+			RunE:        runBankingOnboardingGet,
 		},
 		update,
 		&cobra.Command{
-			Use:     "cancel <entity_id> <onboarding_id>",
-			Short:   "Cancel an onboarding that has not completed",
-			Example: "  yuno-cli banking entity onboarding cancel be-1 bo-1",
-			Args:    cobra.ExactArgs(2),
-			RunE:    runBankingOnboardingCancel,
+			Annotations: apiOperations("POST /banking/entities/{entity_id}/onboardings/{onboarding_id}/cancel"),
+			Use:         "cancel <entity_id> <onboarding_id>",
+			Short:       "Cancel an onboarding that has not completed",
+			Example:     "  yuno-cli banking entity onboarding cancel be-1 bo-1",
+			Args:        cobra.ExactArgs(2),
+			RunE:        runBankingOnboardingCancel,
 		},
 	)
 
@@ -335,8 +342,9 @@ func newBankingAccountCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:   "create",
-		Short: "Open a bank account for a completed onboarding",
+		Annotations: apiOperations("POST /banking/accounts"),
+		Use:         "create",
+		Short:       "Open a bank account for a completed onboarding",
 		Example: "  yuno-cli banking account create --account-id acc-1 --onboarding-id bo-1 " +
 			"--account-type CHECKING --currency USD",
 		Args: cobra.NoArgs,
@@ -345,27 +353,30 @@ func newBankingAccountCommand() *cobra.Command {
 	registerWriteFlags(create, bankingAccountFields)
 
 	update := &cobra.Command{
-		Use:     "update <account_id>",
-		Short:   "Update a bank account",
-		Example: "  yuno-cli banking account update ba-1 --account-id acc-1 --account-type SAVINGS",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runBankingAccountUpdate,
+		Annotations: apiOperations("PATCH /banking/accounts/{account_id}"),
+		Use:         "update <account_id>",
+		Short:       "Update a bank account",
+		Example:     "  yuno-cli banking account update ba-1 --account-id acc-1 --account-type SAVINGS",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runBankingAccountUpdate,
 	}
 	registerWriteFlags(update, bankingAccountFields)
 
 	account.AddCommand(
 		create,
 		&cobra.Command{
-			Use:     "get <account_id>",
-			Short:   "Retrieve one bank account with its balance",
-			Example: "  yuno-cli banking account get ba-1 --json",
-			Args:    cobra.ExactArgs(1),
-			RunE:    runBankingAccountGet,
+			Annotations: apiOperations("GET /banking/accounts/{account_id}"),
+			Use:         "get <account_id>",
+			Short:       "Retrieve one bank account with its balance",
+			Example:     "  yuno-cli banking account get ba-1 --json",
+			Args:        cobra.ExactArgs(1),
+			RunE:        runBankingAccountGet,
 		},
 		update,
 		&cobra.Command{
-			Use:   "close <account_id>",
-			Short: "Close a bank account",
+			Annotations: apiOperations("DELETE /banking/accounts/{account_id}"),
+			Use:         "close <account_id>",
+			Short:       "Close a bank account",
 			Long: "Close a bank account.\n\n" +
 				"Yuno exposes this as a DELETE but answers with the closed account, not an\n" +
 				"empty body.",
@@ -459,8 +470,9 @@ func newBankingTransferCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:   "create",
-		Short: "Initiate a transfer",
+		Annotations: apiOperations("POST /banking/transfers"),
+		Use:         "create",
+		Short:       "Initiate a transfer",
 		Example: "  yuno-cli banking transfer create --account-id acc-1 --source-account-id ba-1 " +
 			"--direction OUTBOUND --payment-rail ACH --amount '{\"value\":250,\"currency\":\"USD\"}' " +
 			"--destination-account '{\"account_number\":\"9876543210\"}'",
@@ -472,8 +484,9 @@ func newBankingTransferCommand() *cobra.Command {
 	transfer.AddCommand(
 		create,
 		&cobra.Command{
-			Use:   "get <account_id> <transfer_id>",
-			Short: "Retrieve the status of a transfer",
+			Annotations: apiOperations("GET /banking/accounts/{account_id}/transfers/{transfer_id}"),
+			Use:         "get <account_id> <transfer_id>",
+			Short:       "Retrieve the status of a transfer",
 			Long: "Retrieve the status of a transfer.\n\n" +
 				"The read side hangs off the source account, so the account id comes first.",
 			Example: "  yuno-cli banking transfer get ba-1 bt-1 --json",
@@ -481,11 +494,12 @@ func newBankingTransferCommand() *cobra.Command {
 			RunE:    runBankingTransferGet,
 		},
 		&cobra.Command{
-			Use:     "cancel <account_id> <transfer_id>",
-			Short:   "Cancel a transfer that has not settled",
-			Example: "  yuno-cli banking transfer cancel ba-1 bt-1",
-			Args:    cobra.ExactArgs(2),
-			RunE:    runBankingTransferCancel,
+			Annotations: apiOperations("POST /banking/accounts/{account_id}/transfers/{transfer_id}/cancel"),
+			Use:         "cancel <account_id> <transfer_id>",
+			Short:       "Cancel a transfer that has not settled",
+			Example:     "  yuno-cli banking transfer cancel ba-1 bt-1",
+			Args:        cobra.ExactArgs(2),
+			RunE:        runBankingTransferCancel,
 		},
 	)
 

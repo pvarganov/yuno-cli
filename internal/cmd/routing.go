@@ -53,11 +53,12 @@ func newRoutingCommand() *cobra.Command {
 
 func newRoutingListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the routing rules of an account",
-		Example: "  yuno-cli routing list --account-id <uuid> --payment-method CARD",
-		Args:    cobra.NoArgs,
-		RunE:    runRoutingList,
+		Annotations: apiOperations("GET /routing"),
+		Use:         "list",
+		Short:       "List the routing rules of an account",
+		Example:     "  yuno-cli routing list --account-id <uuid> --payment-method CARD",
+		Args:        cobra.NoArgs,
+		RunE:        runRoutingList,
 	}
 
 	command.Flags().String("account-id", "", "account to list the routings of (defaults to the profile account_id)")
@@ -91,11 +92,12 @@ func runRoutingList(cmd *cobra.Command, _ []string) error {
 
 func newRoutingGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <routing_id>",
-		Short:   "Retrieve one routing rule",
-		Example: "  yuno-cli routing get r_8f2c1d3e --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRoutingGet,
+		Annotations: apiOperations("GET /routing/{routing_id}"),
+		Use:         "get <routing_id>",
+		Short:       "Retrieve one routing rule",
+		Example:     "  yuno-cli routing get r_8f2c1d3e --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRoutingGet,
 	}
 }
 
@@ -115,11 +117,12 @@ func runRoutingGet(cmd *cobra.Command, args []string) error {
 
 func newRoutingCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a routing rule",
-		Example: "  yuno-cli routing create --file routing.json",
-		Args:    cobra.NoArgs,
-		RunE:    runRoutingCreate,
+		Annotations: apiOperations("POST /routing"),
+		Use:         "create",
+		Short:       "Create a routing rule",
+		Example:     "  yuno-cli routing create --file routing.json",
+		Args:        cobra.NoArgs,
+		RunE:        runRoutingCreate,
 	}
 
 	registerWriteFlags(command, routingFields)
@@ -148,11 +151,12 @@ func runRoutingCreate(cmd *cobra.Command, _ []string) error {
 
 func newRoutingUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <routing_id>",
-		Short:   "Update a routing rule",
-		Example: "  yuno-cli routing update r_8f2c1d3e --name 'Card routing'",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRoutingUpdate,
+		Annotations: apiOperations("PATCH /routing/{routing_id}"),
+		Use:         "update <routing_id>",
+		Short:       "Update a routing rule",
+		Example:     "  yuno-cli routing update r_8f2c1d3e --name 'Card routing'",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRoutingUpdate,
 	}
 
 	registerWriteFlags(command, routingFields)
@@ -181,11 +185,12 @@ func runRoutingUpdate(cmd *cobra.Command, args []string) error {
 
 func newRoutingRecommendCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "recommend",
-		Short:   "Ask Yuno which candidate provider to route a payment to",
-		Example: "  yuno-cli routing recommend --file recommendation.json",
-		Args:    cobra.NoArgs,
-		RunE:    runRoutingRecommend,
+		Annotations: apiOperations("POST /routing/recommendations"),
+		Use:         "recommend",
+		Short:       "Ask Yuno which candidate provider to route a payment to",
+		Example:     "  yuno-cli routing recommend --file recommendation.json",
+		Args:        cobra.NoArgs,
+		RunE:        runRoutingRecommend,
 	}
 
 	registerWriteFlags(command, recommendFields)

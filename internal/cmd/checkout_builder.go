@@ -83,8 +83,9 @@ func newCheckoutBuilderCommand() *cobra.Command {
 
 func newCheckoutBuilderCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create an empty checkout configuration",
+		Annotations: apiOperations("POST /checkouts"),
+		Use:         "create",
+		Short:       "Create an empty checkout configuration",
 		Long: "Create an empty checkout configuration.\n\n" +
 			"The id it answers with is the checkout_code every other command takes. A new\n" +
 			"checkout starts unpublished: fill it with `checkout-builder publish`, then flip\n" +
@@ -120,11 +121,12 @@ func runCheckoutBuilderCreate(cmd *cobra.Command, _ []string) error {
 
 func newCheckoutBuilderListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the checkouts of the account",
-		Example: "  yuno-cli checkout-builder list --status PUBLISHED --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runCheckoutBuilderList,
+		Annotations: apiOperations("GET /checkouts"),
+		Use:         "list",
+		Short:       "List the checkouts of the account",
+		Example:     "  yuno-cli checkout-builder list --status PUBLISHED --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runCheckoutBuilderList,
 	}
 
 	flags := command.Flags()
@@ -166,8 +168,9 @@ func runCheckoutBuilderList(cmd *cobra.Command, _ []string) error {
 
 func newCheckoutBuilderGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <checkout_code>",
-		Short: "Retrieve one checkout configuration",
+		Annotations: apiOperations("GET /checkouts/{checkout_code}"),
+		Use:         "get <checkout_code>",
+		Short:       "Retrieve one checkout configuration",
 		Long: "Retrieve one checkout configuration.\n\n" +
 			"The table shows the lifecycle only; the payment methods, the general settings\n" +
 			"and the styling live under `config` and `styling`, so use --json to read them.",
@@ -193,8 +196,9 @@ func runCheckoutBuilderGet(cmd *cobra.Command, args []string) error {
 
 func newCheckoutBuilderPublishCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "publish <checkout_code>",
-		Short: "Write the configuration and the styling of a checkout",
+		Annotations: apiOperations("PUT /checkouts/{checkout_code}"),
+		Use:         "publish <checkout_code>",
+		Short:       "Write the configuration and the styling of a checkout",
 		Long: "Write the configuration and the styling of a checkout.\n\n" +
 			"Yuno exposes this as a PUT: the body replaces what it touches, so send every\n" +
 			"payment method that should survive the call, not only the ones that change.\n" +
@@ -232,8 +236,9 @@ func runCheckoutBuilderPublish(cmd *cobra.Command, args []string) error {
 
 func newCheckoutBuilderUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "update <checkout_code>",
-		Short: "Rename a checkout or move it through its lifecycle",
+		Annotations: apiOperations("PATCH /checkouts/{checkout_code}"),
+		Use:         "update <checkout_code>",
+		Short:       "Rename a checkout or move it through its lifecycle",
 		Long: "Rename a checkout or move it through its lifecycle.\n\n" +
 			"PUBLISHED is only reachable from NOT_PUBLISHED, and --default only accepts\n" +
 			"true: a checkout is demoted by promoting another one.",

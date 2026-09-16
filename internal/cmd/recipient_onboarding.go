@@ -91,8 +91,9 @@ func newRecipientOnboardingCommand() *cobra.Command {
 
 func newOnboardingCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create <recipient_id>",
-		Short: "Start an onboarding for a recipient",
+		Annotations: apiOperations("POST /recipients/{recipient_id}/onboardings"),
+		Use:         "create <recipient_id>",
+		Short:       "Start an onboarding for a recipient",
 		Example: "  yuno-cli recipient onboarding create rec-1 --account-id acc-1 " +
 			"--type INDIVIDUAL --workflow AUTOMATIC --provider-id NUVEI",
 		Args: cobra.ExactArgs(1),
@@ -125,11 +126,12 @@ func runOnboardingCreate(cmd *cobra.Command, args []string) error {
 
 func newOnboardingGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <recipient_id> <onboarding_id>",
-		Short:   "Retrieve one onboarding of a recipient",
-		Example: "  yuno-cli recipient onboarding get rec-1 onb-1 --json",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runOnboardingGet,
+		Annotations: apiOperations("GET /recipients/{recipient_id}/onboardings/{onboarding_id}"),
+		Use:         "get <recipient_id> <onboarding_id>",
+		Short:       "Retrieve one onboarding of a recipient",
+		Example:     "  yuno-cli recipient onboarding get rec-1 onb-1 --json",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runOnboardingGet,
 	}
 }
 
@@ -149,11 +151,12 @@ func runOnboardingGet(cmd *cobra.Command, args []string) error {
 
 func newOnboardingUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <recipient_id> <onboarding_id>",
-		Short:   "Update an onboarding of a recipient",
-		Example: "  yuno-cli recipient onboarding update rec-1 onb-1 --callback-url https://example.com/hook --yes",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runOnboardingUpdate,
+		Annotations: apiOperations("PATCH /recipients/{recipient_id}/onboardings/{onboarding_id}"),
+		Use:         "update <recipient_id> <onboarding_id>",
+		Short:       "Update an onboarding of a recipient",
+		Example:     "  yuno-cli recipient onboarding update rec-1 onb-1 --callback-url https://example.com/hook --yes",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runOnboardingUpdate,
 	}
 
 	registerWriteFlags(command, onboardingFields)
@@ -182,8 +185,9 @@ func runOnboardingUpdate(cmd *cobra.Command, args []string) error {
 
 func newOnboardingContinueCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "continue <recipient_id> <onboarding_id>",
-		Short: "Continue an onboarding that is waiting for more data",
+		Annotations: apiOperations("POST /recipients/{recipient_id}/onboardings/{onboarding_id}/continue"),
+		Use:         "continue <recipient_id> <onboarding_id>",
+		Short:       "Continue an onboarding that is waiting for more data",
 		Long: "Continue an onboarding that is waiting for more data.\n\n" +
 			"This is the only onboarding action that takes a body: it carries the documentation, " +
 			"the withdrawal methods or the legal representatives the provider asked for.",
@@ -220,10 +224,11 @@ func runOnboardingContinue(cmd *cobra.Command, args []string) error {
 // newOnboardingActionCommand builds one of the bodyless lifecycle actions.
 func newOnboardingActionCommand(name, short string) *cobra.Command {
 	command := &cobra.Command{
-		Use:     name + " <recipient_id> <onboarding_id>",
-		Short:   short,
-		Example: "  yuno-cli recipient onboarding " + name + " rec-1 onb-1 --yes",
-		Args:    cobra.ExactArgs(2),
+		Annotations: apiOperations("POST /recipients/{recipient_id}/onboardings/{onboarding_id}/" + name),
+		Use:         name + " <recipient_id> <onboarding_id>",
+		Short:       short,
+		Example:     "  yuno-cli recipient onboarding " + name + " rec-1 onb-1 --yes",
+		Args:        cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runOnboardingAction(cmd, name, args)
 		},
@@ -250,11 +255,12 @@ func runOnboardingAction(cmd *cobra.Command, action string, args []string) error
 
 func newOnboardingTransfersCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "transfers <onboarding_id>",
-		Short:   "List the transfers of one onboarding",
-		Example: "  yuno-cli recipient onboarding transfers onb-1",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runOnboardingTransfers,
+		Annotations: apiOperations("GET /onboardings/{onboarding_id}/transfers"),
+		Use:         "transfers <onboarding_id>",
+		Short:       "List the transfers of one onboarding",
+		Example:     "  yuno-cli recipient onboarding transfers onb-1",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runOnboardingTransfers,
 	}
 }
 
@@ -308,11 +314,12 @@ func newRecipientTransferCommand() *cobra.Command {
 
 func newRecipientTransferRequestCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "request <recipient_id> <onboarding_id>",
-		Short:   "Transfer a recipient onto another onboarding",
-		Example: "  yuno-cli recipient transfer request rec-1 onb-2 --yes",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runRecipientTransferRequest,
+		Annotations: apiOperations("POST /recipients/{recipient_id}/onboardings/{onboarding_id}/transfer"),
+		Use:         "request <recipient_id> <onboarding_id>",
+		Short:       "Transfer a recipient onto another onboarding",
+		Example:     "  yuno-cli recipient transfer request rec-1 onb-2 --yes",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runRecipientTransferRequest,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -336,11 +343,12 @@ func runRecipientTransferRequest(cmd *cobra.Command, args []string) error {
 
 func newRecipientTransferListCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "list <recipient_id>",
-		Short:   "List the onboarding transfers of one recipient",
-		Example: "  yuno-cli recipient transfer list rec-1",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientTransferList,
+		Annotations: apiOperations("GET /recipients/{recipient_id}/transfers"),
+		Use:         "list <recipient_id>",
+		Short:       "List the onboarding transfers of one recipient",
+		Example:     "  yuno-cli recipient transfer list rec-1",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientTransferList,
 	}
 }
 
@@ -360,11 +368,12 @@ func runRecipientTransferList(cmd *cobra.Command, args []string) error {
 
 func newRecipientTransferGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <transfer_id>",
-		Short:   "Retrieve one onboarding transfer",
-		Example: "  yuno-cli recipient transfer get tr-1 --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientTransferGet,
+		Annotations: apiOperations("GET /transfers/{transfer_id}"),
+		Use:         "get <transfer_id>",
+		Short:       "Retrieve one onboarding transfer",
+		Example:     "  yuno-cli recipient transfer get tr-1 --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientTransferGet,
 	}
 }
 
@@ -384,11 +393,12 @@ func runRecipientTransferGet(cmd *cobra.Command, args []string) error {
 
 func newRecipientTransferReverseCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "reverse <transfer_id>",
-		Short:   "Reverse an onboarding transfer",
-		Example: "  yuno-cli recipient transfer reverse tr-1 --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runRecipientTransferReverse,
+		Annotations: apiOperations("POST /recipients/onboardings/reverse-transfer/{transfer_id}"),
+		Use:         "reverse <transfer_id>",
+		Short:       "Reverse an onboarding transfer",
+		Example:     "  yuno-cli recipient transfer reverse tr-1 --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runRecipientTransferReverse,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")
@@ -412,8 +422,9 @@ func runRecipientTransferReverse(cmd *cobra.Command, args []string) error {
 
 func newRecipientTransferReversalCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "reversal <payment_id> <transaction_id>",
-		Short: "Reverse the split marketplace transfer of a payment transaction",
+		Annotations: apiOperations("POST /payments/{payment_id}/transactions/{transaction_id}/split-marketplace/transfer-reversal"),
+		Use:         "reversal <payment_id> <transaction_id>",
+		Short:       "Reverse the split marketplace transfer of a payment transaction",
 		Example: "  yuno-cli recipient transfer reversal pay-1 txn-1 " +
 			"--currency USD --amount 10 --yes",
 		Args: cobra.ExactArgs(2),

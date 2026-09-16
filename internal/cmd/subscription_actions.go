@@ -38,10 +38,11 @@ func newSubscriptionActionCommands() []*cobra.Command {
 // newSubscriptionSimpleActionCommand builds an action that takes no body.
 func newSubscriptionSimpleActionCommand(action, short, example string) *cobra.Command {
 	command := &cobra.Command{
-		Use:     action + " <subscription_id>",
-		Short:   short,
-		Example: example,
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("POST /subscriptions/{subscription_id}/" + action),
+		Use:         action + " <subscription_id>",
+		Short:       short,
+		Example:     example,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runSubscriptionAction(cmd, args[0], action, nil)
 		},
@@ -54,10 +55,11 @@ func newSubscriptionSimpleActionCommand(action, short, example string) *cobra.Co
 
 func newSubscriptionCancelCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "cancel <subscription_id>",
-		Short:   "Cancel a subscription",
-		Example: "  yuno-cli subscription cancel sub-1 --refund --yes",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("POST /subscriptions/{subscription_id}/cancel"),
+		Use:         "cancel <subscription_id>",
+		Short:       "Cancel a subscription",
+		Example:     "  yuno-cli subscription cancel sub-1 --refund --yes",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			body, err := bodyFromFlags(cmd, subscriptionCancelFields)
 			if err != nil {
@@ -75,10 +77,11 @@ func newSubscriptionCancelCommand() *cobra.Command {
 
 func newSubscriptionChangePlanCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "change-plan <subscription_id>",
-		Short:   "Move a subscription to another plan",
-		Example: "  yuno-cli subscription change-plan sub-1 --plan-id plan-2 --yes",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("POST /subscriptions/{subscription_id}/plan"),
+		Use:         "change-plan <subscription_id>",
+		Short:       "Move a subscription to another plan",
+		Example:     "  yuno-cli subscription change-plan sub-1 --plan-id plan-2 --yes",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			body, err := requireBody(cmd, subscriptionChangePlanFields)
 			if err != nil {

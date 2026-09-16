@@ -45,11 +45,12 @@ var fulfillmentFields = []FieldFlag{
 
 func newPaymentRefundCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "refund <payment_id> <transaction_id>",
-		Short:   "Refund one transaction of a payment",
-		Example: "  yuno-cli payment refund p-1 t-1 --merchant-reference ref-1",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentRefund,
+		Annotations: apiOperations("POST /payments/{payment_id}/transactions/{transaction_id}/refund"),
+		Use:         "refund <payment_id> <transaction_id>",
+		Short:       "Refund one transaction of a payment",
+		Example:     "  yuno-cli payment refund p-1 t-1 --merchant-reference ref-1",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentRefund,
 	}
 
 	registerWriteFlags(command, refundFields)
@@ -78,11 +79,12 @@ func runPaymentRefund(cmd *cobra.Command, args []string) error {
 
 func newPaymentCancelCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "cancel <payment_id> <transaction_id>",
-		Short:   "Cancel one transaction of a payment",
-		Example: "  yuno-cli payment cancel p-1 t-1 --merchant-reference ref-1",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentCancel,
+		Annotations: apiOperations("POST /payments/{payment_id}/transactions/{transaction_id}/cancel"),
+		Use:         "cancel <payment_id> <transaction_id>",
+		Short:       "Cancel one transaction of a payment",
+		Example:     "  yuno-cli payment cancel p-1 t-1 --merchant-reference ref-1",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentCancel,
 	}
 
 	registerWriteFlags(command, cancelFields)
@@ -111,11 +113,12 @@ func runPaymentCancel(cmd *cobra.Command, args []string) error {
 
 func newPaymentCaptureCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "capture <payment_id> <transaction_id>",
-		Short:   "Capture an authorized transaction of a payment",
-		Example: "  yuno-cli payment capture p-1 t-1 --amount 150 --currency USD --reason CAPTURE",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentCapture,
+		Annotations: apiOperations("POST /payments/{payment_id}/transactions/{transaction_id}/capture"),
+		Use:         "capture <payment_id> <transaction_id>",
+		Short:       "Capture an authorized transaction of a payment",
+		Example:     "  yuno-cli payment capture p-1 t-1 --amount 150 --currency USD --reason CAPTURE",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentCapture,
 	}
 
 	registerWriteFlags(command, captureFields)
@@ -146,6 +149,10 @@ func runPaymentCapture(cmd *cobra.Command, args []string) error {
 // a transaction id it targets one transaction, without it the whole payment.
 func newPaymentCancelOrRefundCommand() *cobra.Command {
 	command := &cobra.Command{
+		Annotations: apiOperations(
+			"POST /payments/{payment_id}/cancel-or-refund",
+			"POST /payments/{payment_id}/transactions/{transaction_id}/cancel-or-refund",
+		),
 		Use:     "cancel-or-refund <payment_id> [transaction_id]",
 		Short:   "Let Yuno choose between cancelling and refunding",
 		Example: "  yuno-cli payment cancel-or-refund p-1 --reason REQUESTED_BY_CUSTOMER",
@@ -196,20 +203,22 @@ func newPaymentDisputeCommand() *cobra.Command {
 	}
 
 	create := &cobra.Command{
-		Use:     "create <payment_id> <transaction_id>",
-		Short:   "Submit the evidence of a disputed transaction",
-		Example: "  yuno-cli payment dispute create p-1 t-1 --file evidence.json",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentDisputeCreate,
+		Annotations: apiOperations("POST /payments/{payment_id}/transactions/{transaction_id}/dispute"),
+		Use:         "create <payment_id> <transaction_id>",
+		Short:       "Submit the evidence of a disputed transaction",
+		Example:     "  yuno-cli payment dispute create p-1 t-1 --file evidence.json",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentDisputeCreate,
 	}
 	registerWriteFlags(create, disputeFields)
 
 	update := &cobra.Command{
-		Use:     "update <payment_id> <transaction_id>",
-		Short:   "Replace the evidence of a disputed transaction",
-		Example: "  yuno-cli payment dispute update p-1 t-1 --file evidence.json",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runPaymentDisputeUpdate,
+		Annotations: apiOperations("PATCH /payments/{payment_id}/transactions/{transaction_id}/dispute"),
+		Use:         "update <payment_id> <transaction_id>",
+		Short:       "Replace the evidence of a disputed transaction",
+		Example:     "  yuno-cli payment dispute update p-1 t-1 --file evidence.json",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runPaymentDisputeUpdate,
 	}
 	registerWriteFlags(update, disputeFields)
 
@@ -258,12 +267,13 @@ func runPaymentDisputeUpdate(cmd *cobra.Command, args []string) error {
 
 func newPaymentFulfillmentsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "fulfillments <payment_id>",
-		Short:   "Report the fulfillment status of a payment",
-		Aliases: []string{"fulfillment"},
-		Example: "  yuno-cli payment fulfillments p-1 --file fulfillments.json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentFulfillments,
+		Annotations: apiOperations("POST /payments/{payment_id}/fulfillments"),
+		Use:         "fulfillments <payment_id>",
+		Short:       "Report the fulfillment status of a payment",
+		Aliases:     []string{"fulfillment"},
+		Example:     "  yuno-cli payment fulfillments p-1 --file fulfillments.json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentFulfillments,
 	}
 
 	registerWriteFlags(command, fulfillmentFields)

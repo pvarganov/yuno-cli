@@ -87,8 +87,9 @@ func newCampaignCommand() *cobra.Command {
 
 func newCampaignCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a communications campaign",
+		Annotations: apiOperations("POST /campaigns"),
+		Use:         "create",
+		Short:       "Create a communications campaign",
 		Long: "Create a communications campaign.\n\n" +
 			"A campaign reaches nobody until it has rules: add them with `campaign rule create`.",
 		Example: "  yuno-cli campaign create --name 'Recovery CO' --account-id acc-1 --country CO \\\n" +
@@ -124,11 +125,12 @@ func runCampaignCreate(cmd *cobra.Command, _ []string) error {
 
 func newCampaignListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the communications campaigns",
-		Example: "  yuno-cli campaign list --start-date 2026-09-01 --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runCampaignList,
+		Annotations: apiOperations("GET /campaigns"),
+		Use:         "list",
+		Short:       "List the communications campaigns",
+		Example:     "  yuno-cli campaign list --start-date 2026-09-01 --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runCampaignList,
 	}
 
 	flags := command.Flags()
@@ -165,8 +167,9 @@ func runCampaignList(cmd *cobra.Command, _ []string) error {
 
 func newCampaignGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "get <campaign_id>",
-		Short: "Retrieve one campaign",
+		Annotations: apiOperations("GET /campaigns/{campaign_id}"),
+		Use:         "get <campaign_id>",
+		Short:       "Retrieve one campaign",
 		Long: "Retrieve one campaign.\n\n" +
 			"The table shows the campaign itself; its rules come along under `rules`, so use\n" +
 			"--json to read them.",
@@ -192,11 +195,12 @@ func runCampaignGet(cmd *cobra.Command, args []string) error {
 
 func newCampaignUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <campaign_id>",
-		Short:   "Change the status of a campaign",
-		Example: "  yuno-cli campaign update 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 --status ACTIVE",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runCampaignUpdate,
+		Annotations: apiOperations("PATCH /campaigns/{campaign_id}"),
+		Use:         "update <campaign_id>",
+		Short:       "Change the status of a campaign",
+		Example:     "  yuno-cli campaign update 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 --status ACTIVE",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runCampaignUpdate,
 	}
 
 	registerWriteFlags(command, campaignStatusFields)
@@ -247,8 +251,9 @@ func newCampaignRuleCommand() *cobra.Command {
 
 func newCampaignRuleCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create <campaign_id>",
-		Short: "Add targeting rules to a campaign",
+		Annotations: apiOperations("POST /campaigns/{campaign_id}/rules"),
+		Use:         "create <campaign_id>",
+		Short:       "Add targeting rules to a campaign",
 		Long: "Add targeting rules to a campaign.\n\n" +
 			"The endpoint takes a `rules` array. The field flags describe one rule and are\n" +
 			"wrapped into that array; send several at once with --file.",
@@ -306,11 +311,12 @@ func campaignRulesBody(cmd *cobra.Command) (any, error) {
 
 func newCampaignRuleGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <campaign_id> <rule_id>",
-		Short:   "Retrieve one rule of a campaign",
-		Example: "  yuno-cli campaign rule get 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 rule-1 --json",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runCampaignRuleGet,
+		Annotations: apiOperations("GET /campaigns/{campaign_id}/rules/{rule_id}"),
+		Use:         "get <campaign_id> <rule_id>",
+		Short:       "Retrieve one rule of a campaign",
+		Example:     "  yuno-cli campaign rule get 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 rule-1 --json",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runCampaignRuleGet,
 	}
 }
 
@@ -330,11 +336,12 @@ func runCampaignRuleGet(cmd *cobra.Command, args []string) error {
 
 func newCampaignRuleUpdateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "update <campaign_id> <rule_id>",
-		Short:   "Change the definition of one rule of a campaign",
-		Example: "  yuno-cli campaign rule update 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 rule-1 --value CARD",
-		Args:    cobra.ExactArgs(2),
-		RunE:    runCampaignRuleUpdate,
+		Annotations: apiOperations("PATCH /campaigns/{campaign_id}/rules/{rule_id}"),
+		Use:         "update <campaign_id> <rule_id>",
+		Short:       "Change the definition of one rule of a campaign",
+		Example:     "  yuno-cli campaign rule update 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 rule-1 --value CARD",
+		Args:        cobra.ExactArgs(2),
+		RunE:        runCampaignRuleUpdate,
 	}
 
 	registerWriteFlags(command, campaignRuleFields)
@@ -363,8 +370,9 @@ func runCampaignRuleUpdate(cmd *cobra.Command, args []string) error {
 
 func newCampaignRuleStatusCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "status <campaign_id> <rule_id>",
-		Short: "Enable or disable one rule of a campaign",
+		Annotations: apiOperations("PATCH /campaigns/{campaign_id}/rules/{rule_id}/status"),
+		Use:         "status <campaign_id> <rule_id>",
+		Short:       "Enable or disable one rule of a campaign",
 		Long: "Enable or disable one rule of a campaign.\n\n" +
 			"This leaves the definition of the rule alone: only its status changes.",
 		Example: "  yuno-cli campaign rule status 4f0d1f6e-2f8a-4c71-9d2e-1b1f0a6c7e55 rule-1 --status INACTIVE",

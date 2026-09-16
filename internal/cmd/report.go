@@ -81,8 +81,9 @@ func newReportCommand() *cobra.Command {
 
 func newReportCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Schedule a report run",
+		Annotations: apiOperations("POST /reports"),
+		Use:         "create",
+		Short:       "Schedule a report run",
 		Long: "Schedule a report run.\n\n" +
 			"The run is asynchronous: it starts as IN_PROCESS and becomes downloadable once\n" +
 			"`report get` shows it as SUCCEEDED.",
@@ -118,11 +119,12 @@ func runReportCreate(cmd *cobra.Command, _ []string) error {
 
 func newReportListCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "list",
-		Short:   "List the report runs",
-		Example: "  yuno-cli report list --account-id acc-1 --limit 20",
-		Args:    cobra.NoArgs,
-		RunE:    runReportList,
+		Annotations: apiOperations("GET /reports/list"),
+		Use:         "list",
+		Short:       "List the report runs",
+		Example:     "  yuno-cli report list --account-id acc-1 --limit 20",
+		Args:        cobra.NoArgs,
+		RunE:        runReportList,
 	}
 
 	flags := command.Flags()
@@ -164,11 +166,12 @@ func runReportList(cmd *cobra.Command, _ []string) error {
 
 func newReportGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <report_id>",
-		Short:   "Retrieve one report run",
-		Example: "  yuno-cli report get 6d905149-b388-4522-8c0a-759fed1f39da --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runReportGet,
+		Annotations: apiOperations("GET /reports/{report_id}"),
+		Use:         "get <report_id>",
+		Short:       "Retrieve one report run",
+		Example:     "  yuno-cli report get 6d905149-b388-4522-8c0a-759fed1f39da --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runReportGet,
 	}
 }
 
@@ -188,8 +191,9 @@ func runReportGet(cmd *cobra.Command, args []string) error {
 
 func newReportDownloadCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "download <report_id>",
-		Short: "Retrieve the download link of a report, or the file behind it",
+		Annotations: apiOperations("GET /reports/{report_id}/download"),
+		Use:         "download <report_id>",
+		Short:       "Retrieve the download link of a report, or the file behind it",
 		Long: "Retrieve the download link of a report, or the file behind it.\n\n" +
 			"Without --output the pre-signed link is printed. With --output the file is\n" +
 			"streamed to that path, or to stdout when the path is `-`. The link carries its\n" +

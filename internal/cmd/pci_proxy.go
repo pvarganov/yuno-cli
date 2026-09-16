@@ -82,8 +82,9 @@ func newPCIProxyDestinationCommand() *cobra.Command {
 
 func newPCIProxyDestinationListCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: "List the allowlisted destinations",
+		Annotations: apiOperations("GET /pci-proxy/destinations"),
+		Use:         "list",
+		Short:       "List the allowlisted destinations",
 		Long: "List the allowlisted destinations.\n\n" +
 			"The allowlist is not paginated: Yuno answers with the whole list at once.",
 		Example: "  yuno-cli pci-proxy destination list",
@@ -109,8 +110,9 @@ func runPCIProxyDestinationList(cmd *cobra.Command, _ []string) error {
 
 func newPCIProxyDestinationCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Register a destination on the allowlist",
+		Annotations: apiOperations("POST /pci-proxy/destinations"),
+		Use:         "create",
+		Short:       "Register a destination on the allowlist",
 		Long: "Register a destination on the allowlist.\n\n" +
 			"Only registered hostnames can be reached through `pci-proxy forward`; IP addresses\n" +
 			"and internal networks are rejected.",
@@ -147,10 +149,11 @@ func runPCIProxyDestinationCreate(cmd *cobra.Command, _ []string) error {
 // only in the path segment they post to.
 func newPCIProxyDestinationSwitchCommand(action string) *cobra.Command {
 	return &cobra.Command{
-		Use:     action + " <id>",
-		Short:   strings.ToUpper(action[:1]) + action[1:] + " a destination",
-		Example: "  yuno-cli pci-proxy destination " + action + " d7e8f9a0-1234-4b5c-8d6e-7f8091a2b3c4",
-		Args:    cobra.ExactArgs(1),
+		Annotations: apiOperations("POST /pci-proxy/destinations/{destination_id}/" + action),
+		Use:         action + " <id>",
+		Short:       strings.ToUpper(action[:1]) + action[1:] + " a destination",
+		Example:     "  yuno-cli pci-proxy destination " + action + " d7e8f9a0-1234-4b5c-8d6e-7f8091a2b3c4",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runPCIProxyDestinationSwitch(cmd, action, args[0])
 		},
@@ -178,12 +181,13 @@ func runPCIProxyDestinationSwitch(cmd *cobra.Command, action, id string) error {
 
 func newPCIProxyDestinationDeleteCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "delete <id>",
-		Short:   "Remove a destination from the allowlist",
-		Aliases: []string{"remove"},
-		Example: "  yuno-cli pci-proxy destination delete d7e8f9a0-1234-4b5c-8d6e-7f8091a2b3c4",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPCIProxyDestinationDelete,
+		Annotations: apiOperations("DELETE /pci-proxy/destinations/{destination_id}"),
+		Use:         "delete <id>",
+		Short:       "Remove a destination from the allowlist",
+		Aliases:     []string{"remove"},
+		Example:     "  yuno-cli pci-proxy destination delete d7e8f9a0-1234-4b5c-8d6e-7f8091a2b3c4",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPCIProxyDestinationDelete,
 	}
 }
 
@@ -203,8 +207,9 @@ func runPCIProxyDestinationDelete(cmd *cobra.Command, args []string) error {
 
 func newPCIProxyForwardCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "forward",
-		Short: "Forward a request to a destination with card data injected",
+		Annotations: apiOperations("POST /pci-proxy/forward"),
+		Use:         "forward",
+		Short:       "Forward a request to a destination with card data injected",
 		Long: "Forward a request to a destination with card data injected.\n\n" +
 			"`{{vaulted_token.<TOKEN>.<field>}}` expressions in the body and in the extra\n" +
 			"headers are replaced with real card data inside Yuno's PCI environment. The\n" +

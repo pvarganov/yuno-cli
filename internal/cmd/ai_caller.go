@@ -56,9 +56,10 @@ func newAICallerCommand() *cobra.Command {
 
 func newAICallerDeclinedPaymentsCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "declined-payments",
-		Short:   "Call the payer of a declined payment to recover it",
-		Aliases: []string{"declined"},
+		Annotations: apiOperations("POST /smart-support/external/payments/recover"),
+		Use:         "declined-payments",
+		Short:       "Call the payer of a declined payment to recover it",
+		Aliases:     []string{"declined"},
 		Long: "Call the payer of a declined payment to recover it.\n\n" +
 			"The body carries the AI agent configuration under `settings` and the payment it\n" +
 			"should talk about under `additional_information`. It is deep enough that --file\n" +
@@ -94,9 +95,10 @@ func runAICallerDeclinedPayments(cmd *cobra.Command, _ []string) error {
 
 func newAICallerRecoverCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "recover",
-		Short:   "Reach out to a customer who abandoned a checkout flow",
-		Aliases: []string{"abandoned"},
+		Annotations: apiOperations("POST /smart-support/external/payments"),
+		Use:         "recover",
+		Short:       "Reach out to a customer who abandoned a checkout flow",
+		Aliases:     []string{"abandoned"},
 		Long: "Reach out to a customer who abandoned a checkout flow.\n\n" +
 			"Unlike `declined-payments`, this one is about a flow that never produced a\n" +
 			"payment: the body describes the customer, the session they dropped, the cart\n" +

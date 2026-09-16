@@ -77,8 +77,9 @@ func newPaymentLinkCommand() *cobra.Command {
 
 func newPaymentLinkCreateCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "create",
-		Short: "Create a payment link",
+		Annotations: apiOperations("POST /payment-links"),
+		Use:         "create",
+		Short:       "Create a payment link",
 		Example: "  yuno-cli payment-link create --account-id acc-1 --country US " +
 			"--currency USD --amount 50 --payment-method-type CARD",
 		Args: cobra.NoArgs,
@@ -111,11 +112,12 @@ func runPaymentLinkCreate(cmd *cobra.Command, _ []string) error {
 
 func newPaymentLinkGetCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "get <code>",
-		Short:   "Retrieve one payment link",
-		Example: "  yuno-cli payment-link get aace3f6d --json",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentLinkGet,
+		Annotations: apiOperations("GET /payment-links/{code}"),
+		Use:         "get <code>",
+		Short:       "Retrieve one payment link",
+		Example:     "  yuno-cli payment-link get aace3f6d --json",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentLinkGet,
 	}
 }
 
@@ -135,11 +137,12 @@ func runPaymentLinkGet(cmd *cobra.Command, args []string) error {
 
 func newPaymentLinkCancelCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:     "cancel <code>",
-		Short:   "Cancel a payment link so it can no longer be paid",
-		Example: "  yuno-cli payment-link cancel aace3f6d --yes",
-		Args:    cobra.ExactArgs(1),
-		RunE:    runPaymentLinkCancel,
+		Annotations: apiOperations("POST /payment-links/{code}/cancel"),
+		Use:         "cancel <code>",
+		Short:       "Cancel a payment link so it can no longer be paid",
+		Example:     "  yuno-cli payment-link cancel aace3f6d --yes",
+		Args:        cobra.ExactArgs(1),
+		RunE:        runPaymentLinkCancel,
 	}
 
 	command.Flags().String("idempotency-key", "", "pin the X-Idempotency-Key of the request")

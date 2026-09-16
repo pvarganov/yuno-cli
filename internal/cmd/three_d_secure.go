@@ -67,8 +67,9 @@ func newThreeDSecureCommand() *cobra.Command {
 
 func newThreeDSecureSetupCommand() *cobra.Command {
 	command := &cobra.Command{
-		Use:   "setup",
-		Short: "Create a 3-D Secure setup and collect the device fingerprints",
+		Annotations: apiOperations("POST /three-d-secure/setups"),
+		Use:         "setup",
+		Short:       "Create a 3-D Secure setup and collect the device fingerprints",
 		Example: "  yuno-cli three-d-secure setup --account-id acc-1 --type BROWSER " +
 			"--user-agent Mozilla/5.0 --accept-header '*/*' --language en-US " +
 			"--screen-width 1920 --screen-height 1080 --color-depth 24",
