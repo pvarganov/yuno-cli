@@ -214,7 +214,10 @@ func newPCIProxyForwardCommand() *cobra.Command {
 			"`{{vaulted_token.<TOKEN>.<field>}}` expressions in the body and in the extra\n" +
 			"headers are replaced with real card data inside Yuno's PCI environment. The\n" +
 			"destination's status code, headers and body come back unchanged, so the response\n" +
-			"is printed verbatim.",
+			"is printed verbatim.\n\n" +
+			"Masking only recognises Yuno's own field names: a destination that echoes card\n" +
+			"data back under a name Yuno doesn't use (e.g. `full_pan`) will have it printed\n" +
+			"unmasked. Review a destination's response shape before scripting around it.",
 		Example: "  yuno-cli pci-proxy forward --destination-url https://api.processor.com/charges " +
 			"--file charge.json\n" +
 			"  yuno-cli pci-proxy forward --method GET --destination-url https://api.processor.com/charges/ch_1",

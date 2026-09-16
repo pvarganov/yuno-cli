@@ -121,6 +121,40 @@ func TestRawGet_FormatsAsIndentedJSON(t *testing.T) {
 	}
 }
 
+func TestRawGet_NonJSONResponseIsWithheldByDefault(t *testing.T) {
+	isolateConfig(t)
+	seedCredentials(t)
+	startAPI(t, http.StatusOK, `not a json body, could carry anything`)
+
+	out, err := runCLI(t, "", "raw", "GET", "/routing")
+	if err != nil {
+		t.Fatalf("raw get failed: %v (%s)", err, out)
+	}
+
+	if strings.Contains(out, "not a json body") {
+		t.Errorf("expected the non-JSON body to be withheld, got: %s", out)
+	}
+
+	if !strings.Contains(out, "--unmask") {
+		t.Errorf("expected a hint to use --unmask, got: %s", out)
+	}
+}
+
+func TestRawGet_NonJSONResponsePrintedWithUnmask(t *testing.T) {
+	isolateConfig(t)
+	seedCredentials(t)
+	startAPI(t, http.StatusOK, `not a json body, could carry anything`)
+
+	out, err := runCLI(t, "", "raw", "GET", "/routing", "--unmask")
+	if err != nil {
+		t.Fatalf("raw get failed: %v (%s)", err, out)
+	}
+
+	if !strings.Contains(out, "not a json body, could carry anything") {
+		t.Errorf("expected the raw body with --unmask, got: %s", out)
+	}
+}
+
 func TestRawGet_NeverPrompts(t *testing.T) {
 	isolateConfig(t)
 	seedCredentials(t)

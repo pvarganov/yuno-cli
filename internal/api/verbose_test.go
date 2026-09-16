@@ -68,6 +68,33 @@ func TestVerboseMasksCredentialsAndCardData(t *testing.T) {
 	}
 }
 
+func TestVerboseMasksThePCIProxySigningSecret(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte(`{}`))
+	}))
+	defer srv.Close()
+
+	var out bytes.Buffer
+
+	c, _ := newTestClient(t, srv, testProfile(), WithVerbose(&out))
+
+	req := Request{
+		Method: http.MethodPost,
+		Path:   "/pci-proxy/forward",
+		Headers: map[string]string{ //nolint:gosec // test fixture, not a real credential
+			HeaderProxyAuthSecretKey: "hmac-signing-secret-value",
+		},
+	}
+	if _, err := c.DoRaw(t.Context(), req); err != nil {
+		t.Fatalf("DoRaw: %v", err)
+	}
+
+	dump := out.String()
+	if strings.Contains(dump, "hmac-signing-secret-value") {
+		t.Errorf("dump leaked the proxy signing secret:\n%s", dump)
+	}
+}
+
 func TestVerboseOffByDefault(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte(`{}`))

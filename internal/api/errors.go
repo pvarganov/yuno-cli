@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pvarganov/yuno-cli/internal/mask"
 )
 
 // Sentinel errors, comparable with errors.Is against an *Error.
@@ -114,7 +116,7 @@ type errorBody struct {
 func newError(resp *http.Response, body []byte) *Error {
 	apiErr := &Error{
 		StatusCode: resp.StatusCode,
-		Body:       truncate(strings.TrimSpace(string(body)), maxBodyInError),
+		Body:       truncate(maskBody(strings.TrimSpace(string(body))), maxBodyInError),
 		RetryAfter: parseRetryAfter(resp.Header.Get("Retry-After")),
 	}
 
@@ -167,6 +169,24 @@ func parseRetryAfter(value string) time.Duration {
 	}
 
 	return 0
+}
+
+// maskBody redacts sensitive fields of a JSON error body before it is stored
+// on Error and possibly printed unparsed by Error(). Bodies that aren't JSON
+// (an HTML error page, a plain-text gateway response) are returned unchanged,
+// since there is no field structure to mask.
+func maskBody(body string) string {
+	var decoded any
+	if err := json.Unmarshal([]byte(body), &decoded); err != nil {
+		return body
+	}
+
+	masked, err := json.Marshal(mask.JSON(decoded))
+	if err != nil {
+		return body
+	}
+
+	return string(masked)
 }
 
 func truncate(s string, limit int) string {

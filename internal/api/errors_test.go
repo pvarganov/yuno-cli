@@ -131,6 +131,19 @@ func TestNewErrorNonJSONBody(t *testing.T) {
 	}
 }
 
+func TestNewErrorMasksSensitiveFieldsInTheRawBody(t *testing.T) {
+	resp := &http.Response{StatusCode: http.StatusBadGateway, Header: http.Header{}}
+
+	err := newError(resp, []byte(`{"upstream":"rejected card","number":"4111111111111111"}`))
+	if strings.Contains(err.Body, "4111111111111111") {
+		t.Errorf("body leaks the card number unmasked: %q", err.Body)
+	}
+
+	if !strings.Contains(err.Error(), "rejected card") {
+		t.Errorf("expected the non-sensitive field to survive masking, got: %q", err.Error())
+	}
+}
+
 func TestNewErrorNumericCodeAndErrorField(t *testing.T) {
 	resp := &http.Response{StatusCode: http.StatusBadRequest, Header: http.Header{}}
 

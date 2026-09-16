@@ -324,15 +324,32 @@ func printJSON(cmd *cobra.Command, data []byte) error {
 
 	var decoded any
 	if err := json.Unmarshal(data, &decoded); err != nil {
-		if _, err := fmt.Fprintln(cmd.OutOrStdout(), string(data)); err != nil {
+		return printNonJSON(cmd, data)
+	}
+
+	unmask := output.WithUnmask(flagBool(cmd, "unmask"))
+	if err := output.NewFormatter(true, unmask).Format(cmd.OutOrStdout(), decoded); err != nil {
+		return fmt.Errorf("print response: %w", err)
+	}
+
+	return nil
+}
+
+// printNonJSON prints a response body that failed to parse as JSON, e.g. from
+// `raw` hitting an endpoint that returns plain text or HTML. Because
+// internal/mask can only redact fields of a decoded JSON tree, such a body
+// cannot be selectively masked, so it is withheld by default like any other
+// sensitive output and only printed verbatim with --unmask.
+func printNonJSON(cmd *cobra.Command, data []byte) error {
+	if !flagBool(cmd, "unmask") {
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "<non-json response withheld, pass --unmask to print it verbatim>"); err != nil {
 			return fmt.Errorf("print response: %w", err)
 		}
 
 		return nil
 	}
 
-	unmask := output.WithUnmask(flagBool(cmd, "unmask"))
-	if err := output.NewFormatter(true, unmask).Format(cmd.OutOrStdout(), decoded); err != nil {
+	if _, err := fmt.Fprintln(cmd.OutOrStdout(), string(data)); err != nil {
 		return fmt.Errorf("print response: %w", err)
 	}
 
