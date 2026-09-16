@@ -40,6 +40,9 @@ func NewRootCommand(version string) *cobra.Command {
 		newNetworkTokenCommand(),
 		newSubscriptionCommand(),
 		newPlanCommand(),
+		newInstallmentPlanCommand(),
+		newPaymentLinkCommand(),
+		newConversionRateCommand(),
 	)
 
 	return root
