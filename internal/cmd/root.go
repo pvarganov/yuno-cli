@@ -43,6 +43,11 @@ func NewRootCommand(version string) *cobra.Command {
 		newInstallmentPlanCommand(),
 		newPaymentLinkCommand(),
 		newConversionRateCommand(),
+		newPayoutCommand(),
+		newTransferCommand(),
+		newPreDebitCommand(),
+		newThreeDSecureCommand(),
+		newDryRunCommand(),
 	)
 
 	return root
