@@ -29,6 +29,7 @@ func NewRootCommand(version string) *cobra.Command {
 	root.AddCommand(
 		newAuthCommand(),
 		newProfileCommand(),
+		newRawCommand(),
 	)
 
 	return root

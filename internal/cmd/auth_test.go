@@ -10,6 +10,7 @@ import (
 
 	"github.com/pvarganov/yuno-cli/internal/cmd"
 	"github.com/pvarganov/yuno-cli/internal/config"
+	"github.com/pvarganov/yuno-cli/internal/confirm"
 )
 
 // isolateConfig points the CLI at a throwaway config dir and clears every
@@ -28,6 +29,7 @@ func isolateConfig(t *testing.T) string {
 		config.EnvOrganizationCode,
 		config.EnvAccountID,
 		config.EnvAPIEndpoint,
+		confirm.EnvAssumeYes,
 	} {
 		t.Setenv(env, "")
 	}
