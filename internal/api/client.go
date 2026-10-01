@@ -10,6 +10,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +32,9 @@ const (
 	defaultMaxRetries = 3
 	userAgent         = "yuno-cli"
 )
+
+// apiVersionSegment matches the version segment that ends every base URL.
+var apiVersionSegment = regexp.MustCompile(`^v\d+$`)
 
 // Client talks to one Yuno environment with one set of credentials.
 type Client struct {
@@ -149,6 +154,10 @@ type Request struct {
 	Body any
 	// Headers are merged on top of the auth headers.
 	Headers map[string]string
+	// Version replaces the API version segment of the base URL (2 sends the
+	// call to `/v2`) for operations the spec serves outside the `/v1` servers.
+	// Zero keeps the version of the base URL.
+	Version int
 }
 
 // DoRaw performs the request and returns the raw response body.
@@ -158,7 +167,7 @@ func (c *Client) DoRaw(ctx context.Context, req Request) ([]byte, error) {
 		return nil, err
 	}
 
-	target, err := c.resolveURL(req.Path, req.Query)
+	target, err := c.resolveURL(req.Version, req.Path, req.Query)
 	if err != nil {
 		return nil, err
 	}
@@ -261,8 +270,8 @@ func (c *Client) setHeaders(req *http.Request, hasBody bool, idemKey string, ext
 	}
 }
 
-func (c *Client) resolveURL(path string, query url.Values) (string, error) {
-	u, err := url.Parse(c.endpoint + "/" + strings.TrimPrefix(path, "/"))
+func (c *Client) resolveURL(version int, path string, query url.Values) (string, error) {
+	u, err := url.Parse(withVersion(c.endpoint, version) + "/" + strings.TrimPrefix(path, "/"))
 	if err != nil {
 		return "", fmt.Errorf("build url for %s: %w", path, err)
 	}
@@ -272,6 +281,21 @@ func (c *Client) resolveURL(path string, query url.Values) (string, error) {
 	}
 
 	return u.String(), nil
+}
+
+// withVersion swaps the trailing `/vN` segment of endpoint for version. An
+// endpoint without a version segment, such as a custom override, is kept as is.
+func withVersion(endpoint string, version int) string {
+	if version == 0 {
+		return endpoint
+	}
+
+	i := strings.LastIndex(endpoint, "/")
+	if i < 0 || !apiVersionSegment.MatchString(endpoint[i+1:]) {
+		return endpoint
+	}
+
+	return endpoint[:i+1] + "v" + strconv.Itoa(version)
 }
 
 func encodeBody(body any) ([]byte, error) {

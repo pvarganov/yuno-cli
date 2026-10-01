@@ -317,3 +317,24 @@ func TestClientContextCancelledNotRetried(t *testing.T) {
 		t.Errorf("sleeps = %d, want 0", len(*slept))
 	}
 }
+
+func TestWithVersion(t *testing.T) {
+	tests := []struct {
+		name, endpoint string
+		version        int
+		want           string
+	}{
+		{"no version keeps the endpoint", "https://api-sandbox.y.uno/v1", 0, "https://api-sandbox.y.uno/v1"},
+		{"swaps the version segment", "https://api.eu.y.uno/v1", 2, "https://api.eu.y.uno/v2"},
+		{"keeps an endpoint without a version", "http://127.0.0.1:8080", 2, "http://127.0.0.1:8080"},
+		{"keeps a non-version last segment", "https://proxy.local/yuno", 2, "https://proxy.local/yuno"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := withVersion(tt.endpoint, tt.version); got != tt.want {
+				t.Errorf("withVersion(%q, %d) = %q, want %q", tt.endpoint, tt.version, got, tt.want)
+			}
+		})
+	}
+}

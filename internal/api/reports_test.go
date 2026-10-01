@@ -181,14 +181,14 @@ func TestDownloadReport_ReturnsTheLink(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	c, _ := newTestClient(t, srv, testProfile())
+	c, _ := newTestClient(t, srv, testProfile(), WithEndpoint(srv.URL+"/v1"))
 
 	download, err := c.DownloadReport(t.Context(), "rp-1")
 	if err != nil {
 		t.Fatalf("DownloadReport: %v", err)
 	}
 
-	if gotPath != "/reports/rp-1/download" || download.DownloadLink != "https://s3/report.csv" {
+	if gotPath != "/v2/reports/rp-1/download" || download.DownloadLink != "https://s3/report.csv" {
 		t.Errorf("unexpected download: %s, %+v", gotPath, download)
 	}
 }

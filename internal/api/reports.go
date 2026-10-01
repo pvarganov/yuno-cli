@@ -17,6 +17,10 @@ const reportPath = "/reports"
 // pages from one, unlike the `page` endpoints.
 const reportPageParam = "page_number"
 
+// reportDownloadVersion is the API version the spec serves the report download
+// under; the rest of the report resource stays on `/v1`.
+const reportDownloadVersion = 2
+
 // maxDownloadSize caps a streamed report at 2 GiB, so a broken link that never
 // ends cannot fill the disk.
 const maxDownloadSize = 2 << 30
@@ -68,8 +72,9 @@ func (c *Client) GetReport(ctx context.Context, reportID string) (*model.Report,
 // DownloadReport asks for the pre-signed link of a generated report.
 func (c *Client) DownloadReport(ctx context.Context, reportID string) (*model.ReportDownload, error) {
 	download, err := Do[model.ReportDownload](ctx, c, Request{
-		Method: http.MethodGet,
-		Path:   reportPath + "/" + url.PathEscape(reportID) + "/download",
+		Method:  http.MethodGet,
+		Path:    reportPath + "/" + url.PathEscape(reportID) + "/download",
+		Version: reportDownloadVersion,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("download report %s: %w", reportID, err)

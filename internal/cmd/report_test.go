@@ -35,7 +35,7 @@ func startReportDownloadAPI(t *testing.T, status string) *httptest.Server {
 		link = ""
 	}
 
-	mux.HandleFunc("/v1/reports/rp-1/download", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("/v2/reports/rp-1/download", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = io.WriteString(w, `{"type":"PAYMENTS","status":"`+status+`","download_link":"`+link+`"}`)
 	})
